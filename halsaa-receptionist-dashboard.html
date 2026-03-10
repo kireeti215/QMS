@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>HALSAA — Receptionist Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --teal:#00C9A7;--teal2:#00E8C0;--teal-light:#E6FAF6;--teal-mid:rgba(0,201,167,0.12);
+  --gold:#FFB347;--gold-light:#FFF4E6;--gold2:#FFC86B;
+  --bg:#F4FDFB;--card:#FFFFFF;--text:#1A2E2A;--muted:#7A9E98;
+  --border:rgba(0,201,167,0.15);--shadow:0 4px 20px rgba(0,201,167,0.10);--shadow2:0 2px 12px rgba(0,0,0,0.06);
+  --red:#FF6B6B;--green:#00C853;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;}
+.phone-wrap{width:100%;max-width:420px;min-height:100vh;background:var(--bg);position:relative;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,201,167,0.4)}50%{box-shadow:0 0 0 8px rgba(0,201,167,0)}}
+
+.screen{display:none;animation:fadeUp 0.3s ease both;padding-bottom:100px;}
+.screen.active{display:block;}
+
+/* HEADER */
+.rec-header{background:linear-gradient(135deg,var(--teal) 0%,#009E85 100%);padding:50px 18px 22px;position:relative;overflow:hidden;}
+.rec-header::before{content:'';position:absolute;top:-30px;right:-30px;width:130px;height:130px;background:rgba(255,255,255,0.07);border-radius:50%;}
+.rh-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:relative;z-index:1;}
+.rh-brand{font-size:1.3rem;font-weight:900;color:white;letter-spacing:-.02em;}
+.rh-brand span{color:var(--gold);}
+.rh-role{background:rgba(255,255,255,0.2);border-radius:100px;padding:4px 12px;font-size:.62rem;font-weight:800;color:white;letter-spacing:.06em;}
+.rh-info{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;}
+.rhi-name{font-size:1rem;font-weight:800;color:white;margin-bottom:2px;}
+.rhi-clinic{font-size:.72rem;color:rgba(255,255,255,0.7);}
+.rhi-date{font-size:.63rem;color:rgba(255,255,255,0.5);margin-top:2px;}
+.live-badge{display:flex;align-items:center;gap:5px;background:rgba(0,200,83,0.2);border:1px solid rgba(0,200,83,0.3);border-radius:100px;padding:5px 12px;}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;}
+.live-text{font-size:.62rem;font-weight:800;color:#00F065;}
+
+/* STATS */
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);background:white;margin:0 16px;margin-top:-20px;border-radius:16px;box-shadow:0 6px 24px rgba(0,201,167,0.12);position:relative;z-index:10;overflow:hidden;}
+.ss-item{padding:14px 8px;text-align:center;position:relative;}
+.ss-item:not(:last-child)::after{content:'';position:absolute;right:0;top:20%;height:60%;width:1px;background:#F0F0F0;}
+.ss-val{font-size:1.3rem;font-weight:900;line-height:1;margin-bottom:2px;}
+.ss-label{font-size:.55rem;font-weight:700;color:var(--muted);}
+
+/* NOW SERVING */
+.now-hero{margin:14px 16px 0;background:linear-gradient(135deg,var(--teal),var(--teal2));border-radius:20px;padding:18px;overflow:hidden;position:relative;}
+.now-hero::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:rgba(255,255,255,0.08);border-radius:50%;}
+.nh-label{font-size:.6rem;font-weight:800;letter-spacing:.12em;color:rgba(255,255,255,0.7);text-transform:uppercase;margin-bottom:8px;}
+.nh-body{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;}
+.nh-token{font-size:3rem;font-weight:900;color:white;line-height:1;letter-spacing:-.03em;}
+.nh-prefix{font-size:1.4rem;color:var(--gold);}
+.nh-info{text-align:right;}
+.nh-name{font-size:.9rem;font-weight:800;color:white;margin-bottom:2px;}
+.nh-type{font-size:.65rem;color:rgba(255,255,255,0.7);margin-bottom:8px;}
+.nh-btns{display:flex;gap:6px;justify-content:flex-end;}
+.nh-btn{padding:7px 14px;border-radius:10px;border:none;font-family:'Nunito',sans-serif;font-size:.7rem;font-weight:800;cursor:pointer;transition:all .15s;}
+.nh-btn:active{transform:scale(0.95);}
+.btn-white{background:white;color:var(--teal);}
+.btn-gold{background:var(--gold);color:white;}
+
+/* CONTROLS */
+.queue-controls{margin:12px 16px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.qc-btn{padding:13px 8px;border-radius:14px;border:none;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .2s;}
+.qc-btn:active{transform:scale(0.96);}
+.qc-icon{font-size:1.3rem;}
+.qc-next{background:var(--teal);color:white;box-shadow:0 4px 12px rgba(0,201,167,0.3);}
+.qc-hold{background:var(--gold-light);color:#CC7A00;border:1.5px solid rgba(255,179,71,0.3);}
+.qc-skip{background:rgba(255,107,107,0.1);color:var(--red);border:1.5px solid rgba(255,107,107,0.2);}
+
+/* SEC LABEL */
+.sec-label{padding:16px 16px 8px;font-size:.65rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:space-between;}
+.sec-count{background:var(--teal-mid);color:var(--teal);font-size:.6rem;font-weight:800;padding:2px 8px;border-radius:100px;}
+
+/* QUEUE LIST */
+.queue-list{display:flex;flex-direction:column;gap:8px;padding:0 16px;}
+.q-card{background:white;border-radius:16px;padding:14px;box-shadow:var(--shadow2);display:flex;align-items:center;gap:12px;animation:fadeUp .4s ease both;border-left:4px solid transparent;}
+.q-card.next{border-left-color:var(--gold);}
+.q-card.waiting{border-left-color:var(--teal);}
+.q-card.hold{border-left-color:var(--red);}
+.q-num{font-size:1.1rem;font-weight:900;width:42px;text-align:center;flex-shrink:0;}
+.q-card.next .q-num{color:var(--gold);}
+.q-card.waiting .q-num{color:var(--teal);}
+.q-card.hold .q-num{color:var(--red);}
+.q-info{flex:1;}
+.q-name{font-size:.85rem;font-weight:800;color:var(--text);margin-bottom:2px;}
+.q-meta{font-size:.62rem;color:var(--muted);}
+.q-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.q-badge{font-size:.55rem;font-weight:800;padding:3px 8px;border-radius:100px;}
+.badge-next{background:rgba(255,179,71,0.15);color:#CC7A00;}
+.badge-wait{background:var(--teal-mid);color:var(--teal);}
+.badge-hold{background:rgba(255,107,107,0.1);color:var(--red);}
+.badge-paid{background:rgba(0,200,83,0.1);color:var(--green);}
+.q-actions{display:flex;gap:4px;}
+.q-action-btn{padding:4px 8px;border-radius:7px;border:none;font-family:'Nunito',sans-serif;font-size:.58rem;font-weight:800;cursor:pointer;}
+.qab-pay{background:var(--teal-light);color:var(--teal);}
+.qab-resume{background:rgba(0,200,83,0.1);color:var(--green);}
+
+/* GOLD HEADER */
+.gold-header{background:linear-gradient(135deg,var(--gold),var(--gold2));padding:50px 18px 22px;display:flex;align-items:center;gap:12px;}
+.back-btn{width:36px;height:36px;background:rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;color:white;flex-shrink:0;border:none;}
+.page-title{font-size:1.05rem;font-weight:800;color:white;}
+
+/* GREEN HEADER */
+.green-header{background:linear-gradient(135deg,var(--green),#00A844);padding:50px 18px 22px;display:flex;align-items:center;gap:12px;}
+
+/* TEAL HEADER */
+.teal-header{background:linear-gradient(135deg,var(--teal),#009E85);padding:50px 18px 18px;display:flex;align-items:center;gap:12px;}
+
+/* FORM */
+.form-body{padding:16px;}
+.form-card{background:white;border-radius:18px;padding:18px;box-shadow:var(--shadow2);margin-bottom:14px;}
+.fc-title{font-size:.66rem;font-weight:800;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;}
+.form-group{margin-bottom:12px;}
+.form-label{font-size:.72rem;font-weight:700;color:var(--text);margin-bottom:6px;display:block;}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid #E8F5F2;border-radius:12px;font-family:'Nunito',sans-serif;font-size:.88rem;color:var(--text);outline:none;transition:border .2s;background:#FAFFFE;}
+.form-input:focus{border-color:var(--teal);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fee-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.fee-chip{padding:10px 6px;border-radius:12px;border:1.5px solid #E8F5F2;text-align:center;cursor:pointer;transition:all .2s;}
+.fee-chip.sel{border-color:var(--teal);background:var(--teal-light);}
+.fee-chip-lbl{font-size:.65rem;font-weight:700;color:var(--muted);}
+.fee-chip.sel .fee-chip-lbl{color:var(--teal);}
+.fee-chip-amt{font-size:.85rem;font-weight:900;color:var(--text);}
+.fee-chip.sel .fee-chip-amt{color:var(--teal);}
+.pay-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.pt-opt{padding:12px;border-radius:12px;border:1.5px solid #E8F5F2;text-align:center;cursor:pointer;transition:all .2s;}
+.pt-opt.sel{border-color:var(--teal);background:var(--teal-light);}
+.pt-icon{font-size:1.2rem;margin-bottom:3px;}
+.pt-lbl{font-size:.7rem;font-weight:800;color:var(--muted);}
+.pt-opt.sel .pt-lbl{color:var(--teal);}
+.token-preview{background:linear-gradient(135deg,var(--teal-light),white);border:1.5px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.tp-num{font-size:2rem;font-weight:900;color:var(--teal);}
+.tp-info{flex:1;}
+.tp-lbl{font-size:.63rem;color:var(--muted);}
+.tp-name{font-size:.88rem;font-weight:800;color:var(--text);}
+.submit-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:white;border:none;border-radius:16px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;}
+
+/* SEARCH */
+.sh-wrap{padding:12px 16px;background:linear-gradient(135deg,var(--teal),#009E85);}
+.sh-box{background:rgba(255,255,255,0.2);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:8px;}
+.sh-icon{font-size:.9rem;color:rgba(255,255,255,0.8);}
+.sh-input{flex:1;border:none;outline:none;font-family:'Nunito',sans-serif;font-size:.88rem;color:white;background:transparent;}
+.sh-input::placeholder{color:rgba(255,255,255,0.6);}
+.search-body{padding:14px 16px;}
+.sr-lbl{font-size:.65rem;font-weight:800;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
+.patient-card{background:white;border-radius:16px;padding:14px;box-shadow:var(--shadow2);margin-bottom:10px;cursor:pointer;animation:fadeUp .3s ease both;}
+.patient-card:active{transform:scale(0.98);}
+.pc-top{display:flex;align-items:center;gap:12px;}
+.pc-av{width:44px;height:44px;border-radius:50%;background:var(--teal-light);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:var(--teal);flex-shrink:0;}
+.pc-info{flex:1;}
+.pc-name{font-size:.88rem;font-weight:800;color:var(--text);}
+.pc-meta{font-size:.63rem;color:var(--muted);margin-top:1px;}
+.pc-visits{font-size:.6rem;font-weight:700;color:var(--teal);background:var(--teal-mid);padding:2px 8px;border-radius:100px;white-space:nowrap;}
+.pc-hist{margin-top:10px;padding-top:10px;border-top:1px solid #F5F5F5;display:flex;gap:6px;flex-wrap:wrap;}
+.pc-hist span{font-size:.6rem;color:var(--muted);background:#F8F8F8;padding:3px 8px;border-radius:6px;}
+
+/* PAYMENT */
+.pay-body{padding:16px;}
+.pay-token-card{background:white;border-radius:18px;padding:18px;box-shadow:var(--shadow2);margin-bottom:14px;display:flex;align-items:center;gap:14px;}
+.ptc-num{font-size:2.2rem;font-weight:900;color:var(--teal);flex-shrink:0;}
+.ptc-info{flex:1;}
+.ptc-name{font-size:.9rem;font-weight:800;color:var(--text);}
+.ptc-meta{font-size:.67rem;color:var(--muted);margin-top:2px;}
+.ptc-fee{font-size:1.1rem;font-weight:900;color:var(--teal);margin-top:4px;}
+.pay-method-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.pm-card{background:white;border-radius:14px;padding:16px;box-shadow:var(--shadow2);text-align:center;cursor:pointer;border:2px solid transparent;transition:all .2s;}
+.pm-card.sel{border-color:var(--teal);}
+.pm-icon{font-size:1.5rem;margin-bottom:6px;}
+.pm-lbl{font-size:.75rem;font-weight:800;color:var(--text);}
+.pm-sub{font-size:.6rem;color:var(--muted);margin-top:2px;}
+.pay-summary{background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow2);margin-bottom:14px;}
+.psr{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F8F8F8;font-size:.78rem;}
+.psr:last-child{border-bottom:none;font-weight:900;font-size:.88rem;}
+.psr-lbl{color:var(--muted);}
+.psr-val{color:var(--text);}
+.pay-done-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--green),#00A844);color:white;border:none;border-radius:16px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;}
+.skip-btn{width:100%;padding:12px;background:transparent;color:var(--muted);border:1.5px solid #E0E0E0;border-radius:16px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;margin-top:8px;}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:white;border-top:1px solid #F0F0F0;display:grid;grid-template-columns:repeat(4,1fr);padding:8px 0 20px;box-shadow:0 -4px 20px rgba(0,0,0,0.06);z-index:100;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px;}
+.nav-icon{font-size:1.2rem;}
+.nav-label{font-size:.55rem;font-weight:700;color:var(--muted);}
+.nav-item.active .nav-label{color:var(--teal);}
+
+/* FAB */
+.fab{position:fixed;bottom:80px;right:calc(50% - 196px);z-index:99;}
+.fab-btn{width:52px;height:52px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 20px rgba(255,179,71,0.4);border:none;cursor:pointer;}
+
+/* TOAST */
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%);background:#1A2E2A;color:white;padding:11px 20px;border-radius:100px;font-size:.78rem;font-weight:700;z-index:300;display:none;white-space:nowrap;}
+.toast.show{display:block;animation:fadeUp .3s ease;}
+</style>
+</head>
+<body>
+<div class="phone-wrap">
+
+<!-- ══ SCREEN 1: QUEUE ══ -->
+<div class="screen active" id="queue">
+  <div class="rec-header">
+    <div class="rh-top">
+      <div class="rh-brand">HAL<span>SAA</span></div>
+      <div class="rh-role">RECEPTIONIST</div>
+    </div>
+    <div class="rh-info">
+      <div>
+        <div class="rhi-name">Sunitha Reddy</div>
+        <div class="rhi-clinic">Sri Sai Hospital · Hanamkonda</div>
+        <div class="rhi-date">Mon, 8 Dec 2025 · 11:22 AM</div>
+      </div>
+      <div class="live-badge"><div class="live-dot"></div><span class="live-text">LIVE</span></div>
+    </div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="ss-item"><div class="ss-val" style="color:var(--teal)">42</div><div class="ss-label">Issued</div></div>
+    <div class="ss-item"><div class="ss-val" style="color:var(--green)">26</div><div class="ss-label">Done</div></div>
+    <div class="ss-item"><div class="ss-val" style="color:var(--gold)">14</div><div class="ss-label">Waiting</div></div>
+    <div class="ss-item"><div class="ss-val" style="color:var(--red)">2</div><div class="ss-label">No-show</div></div>
+  </div>
+
+  <div class="now-hero">
+    <div class="nh-label">🔊 Now Serving</div>
+    <div class="nh-body">
+      <div class="nh-token"><span class="nh-prefix">T-</span>026</div>
+      <div class="nh-info">
+        <div class="nh-name">Ramesh Kumar</div>
+        <div class="nh-type">Follow-up · ₹150 · Paid ✓</div>
+        <div class="nh-btns">
+          <button class="nh-btn btn-gold" onclick="showToast('✅ T-026 marked done!')">✓ Done</button>
+          <button class="nh-btn btn-white" onclick="showScreen('payment')">💳 Pay</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="queue-controls">
+    <button class="qc-btn qc-next" onclick="showToast('▶️ Called T-027!')">
+      <span class="qc-icon">▶️</span>Next
+    </button>
+    <button class="qc-btn qc-hold" onclick="showToast('⏸ Queue on Hold')">
+      <span class="qc-icon">⏸️</span>Hold
+    </button>
+    <button class="qc-btn qc-skip" onclick="showToast('⏭ Skipped T-027')">
+      <span class="qc-icon">⏭️</span>Skip
+    </button>
+  </div>
+
+  <div class="sec-label">Waiting Queue <span class="sec-count">14 patients</span></div>
+  <div class="queue-list">
+    <div class="q-card next" style="animation-delay:.05s">
+      <div class="q-num">T-027</div>
+      <div class="q-info"><div class="q-name">Priya Reddy</div><div class="q-meta">Normal · ₹300 · Online</div></div>
+      <div class="q-right"><span class="q-badge badge-next">NEXT ↑</span><span class="q-badge badge-paid">Paid ✓</span></div>
+    </div>
+    <div class="q-card waiting" style="animation-delay:.1s">
+      <div class="q-num">T-028</div>
+      <div class="q-info"><div class="q-name">Venkat Rao</div><div class="q-meta">Normal · ₹300 · Walk-in</div></div>
+      <div class="q-right"><span class="q-badge badge-wait">Waiting</span><div class="q-actions"><button class="q-action-btn qab-pay" onclick="showScreen('payment')">💳 Pay</button></div></div>
+    </div>
+    <div class="q-card waiting" style="animation-delay:.15s">
+      <div class="q-num">T-029</div>
+      <div class="q-info"><div class="q-name">Kavya Sharma</div><div class="q-meta">Senior · ₹200 · Online</div></div>
+      <div class="q-right"><span class="q-badge badge-wait">Waiting</span><span class="q-badge badge-paid">Paid ✓</span></div>
+    </div>
+    <div class="q-card hold" style="animation-delay:.2s">
+      <div class="q-num">T-030</div>
+      <div class="q-info"><div class="q-name">Arun Reddy</div><div class="q-meta">Normal · ₹300 · Walk-in</div></div>
+      <div class="q-right"><span class="q-badge badge-hold">On Hold</span><div class="q-actions"><button class="q-action-btn qab-resume" onclick="showToast('✅ Hold removed!')">Resume</button></div></div>
+    </div>
+    <div class="q-card waiting" style="animation-delay:.25s">
+      <div class="q-num">T-031</div>
+      <div class="q-info"><div class="q-name">Sunitha Rao</div><div class="q-meta">Follow-up · ₹150 · Online</div></div>
+      <div class="q-right"><span class="q-badge badge-wait">Waiting</span><span class="q-badge badge-paid">Paid ✓</span></div>
+    </div>
+    <div class="q-card waiting" style="animation-delay:.3s">
+      <div class="q-num">T-032</div>
+      <div class="q-info"><div class="q-name">Mahesh Kumar</div><div class="q-meta">Normal · ₹300 · Walk-in</div></div>
+      <div class="q-right"><span class="q-badge badge-wait">Waiting</span><div class="q-actions"><button class="q-action-btn qab-pay" onclick="showScreen('payment')">💳 Pay</button></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 2: WALK-IN ══ -->
+<div class="screen" id="walkin">
+  <div class="gold-header">
+    <button class="back-btn" onclick="showScreen('queue')">←</button>
+    <div class="page-title">Add Walk-in Patient</div>
+  </div>
+  <div class="form-body">
+    <div class="form-card">
+      <div class="fc-title">Patient Details</div>
+      <div class="form-group">
+        <label class="form-label">Full Name *</label>
+        <input class="form-input" placeholder="Enter patient name" id="pt-name" oninput="updatePreview()"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Mobile *</label>
+          <input class="form-input" placeholder="+91 XXXXX" type="tel"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Age</label>
+          <input class="form-input" placeholder="e.g. 35" type="number"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gender</label>
+        <select class="form-input"><option>Male</option><option>Female</option><option>Other</option></select>
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="fc-title">Consultation Type</div>
+      <div class="fee-grid">
+        <div class="fee-chip sel" onclick="selectFee(this)"><div class="fee-chip-lbl">Normal</div><div class="fee-chip-amt">₹300</div></div>
+        <div class="fee-chip" onclick="selectFee(this)"><div class="fee-chip-lbl">Follow-up</div><div class="fee-chip-amt">₹150</div></div>
+        <div class="fee-chip" onclick="selectFee(this)"><div class="fee-chip-lbl">Senior</div><div class="fee-chip-amt">₹200</div></div>
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="fc-title">Payment Method</div>
+      <div class="pay-toggle">
+        <div class="pt-opt sel" onclick="selectPay(this)"><div class="pt-icon">💵</div><div class="pt-lbl">Cash</div></div>
+        <div class="pt-opt" onclick="selectPay(this)"><div class="pt-icon">📱</div><div class="pt-lbl">UPI / Online</div></div>
+      </div>
+    </div>
+    <div class="token-preview">
+      <div class="tp-num">T-043</div>
+      <div class="tp-info"><div class="tp-lbl">Token assigned to</div><div class="tp-name" id="preview-name">Enter name above</div></div>
+    </div>
+    <button class="submit-btn" onclick="addWalkin()">➕ Add to Queue</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN 3: SEARCH ══ -->
+<div class="screen" id="search">
+  <div style="background:linear-gradient(135deg,var(--teal),#009E85);padding:50px 18px 14px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <button class="back-btn" onclick="showScreen('queue')">←</button>
+      <div class="page-title">Search Patient</div>
+    </div>
+    <div class="sh-box"><div class="sh-icon">🔍</div><input class="sh-input" placeholder="Name or mobile number..."/></div>
+  </div>
+  <div class="search-body">
+    <div class="sr-lbl">Recent Patients</div>
+    <div class="patient-card">
+      <div class="pc-top"><div class="pc-av">R</div><div class="pc-info"><div class="pc-name">Ramesh Kumar</div><div class="pc-meta">+91 98765 43210 · 35 yrs · Male</div></div><div class="pc-visits">14 visits</div></div>
+      <div class="pc-hist"><span>Last: 5 Dec</span><span>General · ₹300</span><span>Follow-up today</span></div>
+    </div>
+    <div class="patient-card" style="animation-delay:.05s">
+      <div class="pc-top"><div class="pc-av">P</div><div class="pc-info"><div class="pc-name">Priya Reddy</div><div class="pc-meta">+91 87654 32109 · 28 yrs · Female</div></div><div class="pc-visits">6 visits</div></div>
+      <div class="pc-hist"><span>Last: 1 Dec</span><span>Normal · ₹300</span></div>
+    </div>
+    <div class="patient-card" style="animation-delay:.1s">
+      <div class="pc-top"><div class="pc-av">V</div><div class="pc-info"><div class="pc-name">Venkat Rao</div><div class="pc-meta">+91 76543 21098 · 52 yrs · Male</div></div><div class="pc-visits">3 visits</div></div>
+      <div class="pc-hist"><span>Last: 20 Nov</span><span>Senior · ₹200</span></div>
+    </div>
+    <div class="patient-card" style="animation-delay:.15s">
+      <div class="pc-top"><div class="pc-av">K</div><div class="pc-info"><div class="pc-name">Kavya Sharma</div><div class="pc-meta">+91 65432 10987 · 24 yrs · Female</div></div><div class="pc-visits">2 visits</div></div>
+      <div class="pc-hist"><span>Last: 15 Nov</span><span>Normal · ₹300</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 4: PAYMENT ══ -->
+<div class="screen" id="payment">
+  <div class="green-header">
+    <button class="back-btn" onclick="showScreen('queue')">←</button>
+    <div class="page-title">Collect Payment</div>
+  </div>
+  <div class="pay-body">
+    <div class="pay-token-card">
+      <div class="ptc-num">T-028</div>
+      <div class="ptc-info">
+        <div class="ptc-name">Venkat Rao</div>
+        <div class="ptc-meta">Normal Consultation · 52 yrs Male</div>
+        <div class="ptc-fee">₹300 to collect</div>
+      </div>
+    </div>
+    <div class="sec-label" style="padding:0 0 10px;">Payment Method</div>
+    <div class="pay-method-grid">
+      <div class="pm-card sel" onclick="selPM(this)"><div class="pm-icon">💵</div><div class="pm-lbl">Cash</div><div class="pm-sub">Collect at counter</div></div>
+      <div class="pm-card" onclick="selPM(this)"><div class="pm-icon">📱</div><div class="pm-lbl">UPI / Online</div><div class="pm-sub">Patient pays digitally</div></div>
+    </div>
+    <div class="pay-summary">
+      <div class="psr"><span class="psr-lbl">Consultation Fee</span><span class="psr-val">₹300</span></div>
+      <div class="psr"><span class="psr-lbl">HALSAA Platform Fee</span><span class="psr-val" style="color:var(--teal)">Already paid ✓</span></div>
+      <div class="psr"><span class="psr-lbl">Total to Collect</span><span class="psr-val" style="color:var(--teal)">₹300</span></div>
+    </div>
+    <button class="pay-done-btn" onclick="payDone()">✅ Mark Payment Done — ₹300</button>
+    <button class="skip-btn" onclick="showToast('⏭ Payment skipped — Pay later')">Skip Payment (Pay Later)</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" id="nav-queue" onclick="showScreen('queue');setNav('nav-queue')">
+    <div class="nav-icon">📋</div><div class="nav-label" style="color:var(--teal)">Queue</div>
+  </div>
+  <div class="nav-item" id="nav-walkin" onclick="showScreen('walkin');setNav('nav-walkin')">
+    <div class="nav-icon">➕</div><div class="nav-label">Walk-in</div>
+  </div>
+  <div class="nav-item" id="nav-search" onclick="showScreen('search');setNav('nav-search')">
+    <div class="nav-icon">🔍</div><div class="nav-label">Search</div>
+  </div>
+  <div class="nav-item" id="nav-payment" onclick="showScreen('payment');setNav('nav-payment')">
+    <div class="nav-icon">💳</div><div class="nav-label">Payment</div>
+  </div>
+</div>
+
+<!-- FAB -->
+<div class="fab">
+  <button class="fab-btn" onclick="showScreen('walkin');setNav('nav-walkin')">➕</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+</div>
+<script>
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const map={queue:'nav-queue',walkin:'nav-walkin',search:'nav-search',payment:'nav-payment'};
+  if(map[id])setNav(map[id]);
+  window.scrollTo(0,0);
+}
+function setNav(aid){
+  document.querySelectorAll('.nav-item').forEach(n=>{n.classList.remove('active');n.querySelector('.nav-label').style.color='var(--muted)';});
+  const el=document.getElementById(aid);
+  if(el){el.classList.add('active');el.querySelector('.nav-label').style.color='var(--teal)';}
+}
+function selectFee(el){document.querySelectorAll('.fee-chip').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+function selectPay(el){document.querySelectorAll('.pt-opt').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+function selPM(el){document.querySelectorAll('.pm-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+function updatePreview(){const n=document.getElementById('pt-name').value;document.getElementById('preview-name').textContent=n||'Enter name above';}
+function addWalkin(){showToast('✅ T-043 added to queue!');setTimeout(()=>showScreen('queue'),900);}
+function payDone(){showToast('💚 Payment done — T-028 ₹300');setTimeout(()=>showScreen('queue'),900);}
+let tt;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2200);}
+</script>
+</body>
+</html>

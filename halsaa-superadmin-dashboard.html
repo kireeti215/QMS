@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>HALSAA — Super Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --teal:#00C9A7;--teal2:#00E8C0;--teal-light:#E6FAF6;--teal-mid:rgba(0,201,167,0.12);
+  --gold:#FFB347;--gold-light:#FFF4E6;--gold2:#FFC86B;
+  --bg:#F4FDFB;--text:#1A2E2A;--muted:#7A9E98;
+  --border:rgba(0,201,167,0.15);--shadow:0 4px 20px rgba(0,201,167,0.12);--shadow2:0 2px 12px rgba(0,0,0,0.06);
+  --red:#FF6B6B;--green:#00C853;--blue:#3B82F6;--purple:#8B5CF6;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;}
+.phone-wrap{width:100%;max-width:420px;min-height:100vh;background:var(--bg);position:relative;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,201,167,0.4)}50%{box-shadow:0 0 0 8px rgba(0,201,167,0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes ticker{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+
+.screen{display:none;animation:fadeUp 0.3s ease both;padding-bottom:100px;}
+.screen.active{display:block;}
+
+/* ══════ HEADER ══════ */
+.sa-header{background:linear-gradient(135deg,#0A1628 0%,#1A2E5A 60%,#0D3B6E 100%);padding:48px 18px 22px;position:relative;overflow:hidden;}
+.sa-header::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:rgba(0,201,167,0.12);border-radius:50%;}
+.sa-header::after{content:'';position:absolute;bottom:-20px;left:-10px;width:100px;height:100px;background:rgba(255,179,71,0.08);border-radius:50%;}
+.sh-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:relative;z-index:1;}
+.sh-brand{font-size:1.5rem;font-weight:900;color:white;letter-spacing:.02em;}
+.sh-brand span{color:var(--gold);}
+.sh-role{background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:100px;padding:4px 13px;font-size:.58rem;font-weight:700;color:white;letter-spacing:.08em;text-transform:uppercase;}
+.sh-body{position:relative;z-index:1;display:flex;align-items:center;gap:13px;}
+.sh-avatar{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--teal),var(--teal2));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+.sh-info{flex:1;}
+.sh-name{font-size:1rem;font-weight:700;color:white;margin-bottom:2px;}
+.sh-sub{font-size:.65rem;color:rgba(255,255,255,0.6);margin-bottom:2px;}
+.sh-date{font-size:.58rem;color:rgba(255,255,255,0.4);}
+.sh-live{display:flex;align-items:center;gap:5px;background:rgba(0,201,167,0.2);border:1px solid rgba(0,201,167,0.4);border-radius:100px;padding:5px 11px;}
+.live-dot{width:6px;height:6px;background:var(--teal);border-radius:50%;animation:pulse 1.5s infinite;}
+.live-text{font-size:.58rem;font-weight:700;color:var(--teal2);}
+
+/* Live ticker */
+.ticker-wrap{background:rgba(255,179,71,0.15);border-top:1px solid rgba(255,179,71,0.2);padding:8px 0;overflow:hidden;position:relative;z-index:1;}
+.ticker{display:flex;animation:ticker 22s linear infinite;white-space:nowrap;}
+.ticker-item{font-size:.62rem;font-weight:600;color:var(--gold);padding:0 24px;}
+
+/* ══════ PLATFORM STATS ══════ */
+.platform-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 16px 0;}
+.pstat-card{background:white;border-radius:16px;padding:15px;box-shadow:var(--shadow2);animation:fadeUp .4s ease both;}
+.psc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.psc-icon{font-size:1.3rem;}
+.psc-trend{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:100px;}
+.trend-up{background:rgba(0,200,83,0.1);color:var(--green);}
+.trend-down{background:rgba(255,107,107,0.1);color:var(--red);}
+.psc-val{font-size:1.5rem;font-weight:800;margin-bottom:2px;}
+.psc-label{font-size:.6rem;color:var(--muted);font-weight:500;}
+
+/* ══════ REVENUE HERO ══════ */
+.rev-hero{margin:14px 16px 0;background:linear-gradient(135deg,#0A1628,#1A2E5A);border-radius:20px;padding:18px;position:relative;overflow:hidden;}
+.rev-hero::before{content:'';position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:rgba(0,201,167,0.1);border-radius:50%;}
+.rh-label{font-size:.58rem;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,0.6);text-transform:uppercase;margin-bottom:6px;}
+.rh-amount{font-size:2.2rem;font-weight:800;color:white;letter-spacing:-.02em;margin-bottom:4px;position:relative;z-index:1;}
+.rh-amount span{font-size:1rem;color:var(--teal);}
+.rh-sub{font-size:.62rem;color:rgba(255,255,255,0.6);position:relative;z-index:1;margin-bottom:14px;}
+.rh-row{display:flex;gap:8px;position:relative;z-index:1;}
+.rh-chip{flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:10px 8px;text-align:center;}
+.rh-chip-val{font-size:.92rem;font-weight:800;color:white;}
+.rh-chip-label{font-size:.52rem;color:rgba(255,255,255,0.55);margin-top:2px;}
+.rh-chip.gold-chip .rh-chip-val{color:var(--gold);}
+.rh-chip.teal-chip .rh-chip-val{color:var(--teal);}
+
+/* ══════ SEC LABEL ══════ */
+.sec-label{padding:16px 16px 8px;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:space-between;}
+.sec-badge{font-size:.58rem;font-weight:700;padding:2px 9px;border-radius:100px;}
+.badge-teal{background:var(--teal-mid);color:var(--teal);}
+.badge-gold{background:rgba(255,179,71,0.15);color:#CC7A00;}
+.badge-red{background:rgba(255,107,107,0.1);color:var(--red);}
+.badge-green{background:rgba(0,200,83,0.1);color:var(--green);}
+.badge-purple{background:rgba(139,92,246,0.1);color:var(--purple);}
+
+/* ══════ CLINIC CARDS ══════ */
+.clinic-list{display:flex;flex-direction:column;gap:10px;padding:0 16px;}
+.clinic-card{background:white;border-radius:18px;padding:14px;box-shadow:var(--shadow2);animation:fadeUp .4s ease both;border-left:4px solid transparent;cursor:pointer;transition:transform .15s;}
+.clinic-card:active{transform:scale(0.98);}
+.clinic-card.active-c{border-left-color:var(--teal);}
+.clinic-card.hold-c{border-left-color:var(--gold);}
+.clinic-card.inactive-c{border-left-color:#E0E0E0;}
+.clinic-card.alert-c{border-left-color:var(--red);}
+.cc-top{display:flex;align-items:flex-start;gap:11px;margin-bottom:10px;}
+.cc-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.icon-teal{background:var(--teal-light);}
+.icon-gold{background:var(--gold-light);}
+.icon-gray{background:#F5F5F5;}
+.icon-red{background:rgba(255,107,107,0.1);}
+.cc-info{flex:1;}
+.cc-name{font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:2px;}
+.cc-city{font-size:.62rem;color:var(--muted);}
+.cc-type{font-size:.58rem;font-weight:600;padding:2px 7px;border-radius:100px;margin-top:3px;display:inline-block;}
+.type-both{background:var(--teal-mid);color:var(--teal);}
+.type-clinic{background:rgba(59,130,246,0.1);color:var(--blue);}
+.type-lab{background:rgba(255,179,71,0.12);color:#CC7A00;}
+.cc-right{text-align:right;flex-shrink:0;}
+.cc-status{font-size:.58rem;font-weight:700;padding:3px 9px;border-radius:100px;display:inline-block;margin-bottom:4px;}
+.st-active{background:rgba(0,200,83,0.1);color:var(--green);}
+.st-hold{background:rgba(255,179,71,0.15);color:#CC7A00;}
+.st-inactive{background:#F0F0F0;color:var(--muted);}
+.st-alert{background:rgba(255,107,107,0.1);color:var(--red);}
+.cc-rev{font-size:.72rem;font-weight:800;color:var(--teal);}
+.cc-patients{font-size:.6rem;color:var(--muted);}
+.cc-stats-row{display:flex;gap:6px;}
+.cc-stat{flex:1;background:#F8FFFE;border-radius:10px;padding:8px 6px;text-align:center;}
+.cc-stat-val{font-size:.82rem;font-weight:800;color:var(--teal);}
+.cc-stat-lbl{font-size:.52rem;color:var(--muted);}
+.cc-actions{display:flex;gap:6px;margin-top:10px;}
+.cca-btn{flex:1;padding:8px;border-radius:10px;border:none;font-family:'Poppins',sans-serif;font-size:.62rem;font-weight:700;cursor:pointer;}
+.cca-teal{background:var(--teal-light);color:var(--teal);}
+.cca-gold{background:var(--gold-light);color:#CC7A00;}
+.cca-red{background:rgba(255,107,107,0.1);color:var(--red);}
+
+/* ══════ ANALYTICS ══════ */
+.analytics-body{padding:16px;}
+.period-row{display:flex;gap:7px;margin-bottom:14px;}
+.period-chip{padding:7px 14px;border-radius:100px;font-size:.65rem;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .2s;}
+.period-chip.active{background:var(--teal);border-color:var(--teal);color:white;}
+.period-chip:not(.active){background:white;border-color:var(--border);color:var(--muted);}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.kpi-card{background:white;border-radius:16px;padding:15px;box-shadow:var(--shadow2);animation:fadeUp .35s ease both;}
+.kpi-icon{font-size:1.2rem;margin-bottom:6px;}
+.kpi-val{font-size:1.4rem;font-weight:800;margin-bottom:2px;}
+.kpi-label{font-size:.58rem;color:var(--muted);font-weight:500;}
+.kpi-trend{font-size:.58rem;font-weight:700;margin-top:3px;}
+.chart-card{background:white;border-radius:18px;padding:18px;box-shadow:var(--shadow2);margin-bottom:14px;}
+.chart-title{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-bottom:6px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;}
+.bar{width:100%;border-radius:6px 6px 0 0;min-height:4px;position:relative;}
+.bar.hl{background:linear-gradient(180deg,var(--teal2),var(--teal));}
+.bar:not(.hl){background:var(--teal-mid);}
+.bar-v{font-size:.5rem;font-weight:700;color:var(--teal);position:absolute;top:-15px;left:50%;transform:translateX(-50%);white-space:nowrap;}
+.bar-lbl{font-size:.5rem;color:var(--muted);font-weight:600;margin-top:4px;}
+.breakdown-card{background:white;border-radius:18px;padding:18px;box-shadow:var(--shadow2);margin-bottom:14px;}
+.bk-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #F8F8F8;}
+.bk-row:last-child{border-bottom:none;}
+.bk-left{display:flex;align-items:center;gap:8px;font-size:.76rem;font-weight:600;}
+.bk-dot{width:8px;height:8px;border-radius:50%;}
+.bk-val{font-size:.85rem;font-weight:800;}
+.city-list{display:flex;flex-direction:column;gap:8px;}
+.city-row{background:white;border-radius:14px;padding:12px 14px;box-shadow:var(--shadow2);display:flex;align-items:center;gap:10px;}
+.city-rank{font-size:1rem;font-weight:800;color:var(--gold);width:24px;text-align:center;}
+.city-info{flex:1;}
+.city-name{font-size:.82rem;font-weight:700;color:var(--text);}
+.city-count{font-size:.62rem;color:var(--muted);}
+.city-rev{font-size:.82rem;font-weight:800;color:var(--teal);}
+
+/* ══════ BILLING ══════ */
+.billing-body{padding:16px;}
+.billing-hero{background:linear-gradient(135deg,#0A1628,#1A2E5A);border-radius:18px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden;}
+.billing-hero::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:rgba(0,201,167,0.1);border-radius:50%;}
+.bh-label{font-size:.58rem;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,0.55);text-transform:uppercase;margin-bottom:6px;}
+.bh-amount{font-size:2rem;font-weight:800;color:white;margin-bottom:4px;position:relative;z-index:1;}
+.bh-amount span{font-size:1rem;color:var(--teal);}
+.bh-sub{font-size:.62rem;color:rgba(255,255,255,0.55);position:relative;z-index:1;margin-bottom:14px;}
+.bh-chips{display:flex;gap:8px;position:relative;z-index:1;}
+.bh-chip{flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:10px 6px;text-align:center;}
+.bh-chip-val{font-size:.9rem;font-weight:800;}
+.bh-chip-lbl{font-size:.5rem;color:rgba(255,255,255,0.5);margin-top:2px;}
+
+.bill-filter{display:flex;gap:6px;margin-bottom:12px;}
+.bf-chip{padding:6px 12px;border-radius:100px;font-size:.62rem;font-weight:700;cursor:pointer;border:1.5px solid;transition:all .2s;}
+.bf-chip.active{background:var(--teal);border-color:var(--teal);color:white;}
+.bf-chip:not(.active){background:white;border-color:var(--border);color:var(--muted);}
+
+.invoice-list{display:flex;flex-direction:column;gap:10px;}
+.invoice-card{background:white;border-radius:16px;padding:14px;box-shadow:var(--shadow2);animation:fadeUp .35s ease both;}
+.ic-top{display:flex;align-items:center;gap:11px;margin-bottom:10px;}
+.ic-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+.ic-info{flex:1;}
+.ic-clinic{font-size:.85rem;font-weight:700;color:var(--text);}
+.ic-month{font-size:.62rem;color:var(--muted);margin-top:1px;}
+.ic-right{text-align:right;}
+.ic-amount{font-size:.9rem;font-weight:800;color:var(--text);}
+.ic-status{font-size:.58rem;font-weight:700;padding:3px 9px;border-radius:100px;display:inline-block;margin-top:3px;}
+.paid{background:rgba(0,200,83,0.1);color:var(--green);}
+.pending{background:rgba(255,179,71,0.15);color:#CC7A00;}
+.overdue{background:rgba(255,107,107,0.1);color:var(--red);}
+.ic-actions{display:flex;gap:6px;}
+.ica-btn{flex:1;padding:8px;border-radius:10px;border:none;font-family:'Poppins',sans-serif;font-size:.62rem;font-weight:700;cursor:pointer;}
+.ica-teal{background:var(--teal-light);color:var(--teal);}
+.ica-gold{background:var(--gold-light);color:#CC7A00;}
+.ica-red{background:rgba(255,107,107,0.1);color:var(--red);}
+
+/* ══════ ALERTS ══════ */
+.alerts-body{padding:16px;}
+.alert-card{background:white;border-radius:16px;padding:14px;box-shadow:var(--shadow2);margin-bottom:10px;display:flex;gap:12px;animation:fadeUp .35s ease both;border-left:4px solid transparent;}
+.alert-card.critical{border-left-color:var(--red);}
+.alert-card.warning{border-left-color:var(--gold);}
+.alert-card.info{border-left-color:var(--teal);}
+.alert-card.success{border-left-color:var(--green);}
+.alert-icon{font-size:1.4rem;flex-shrink:0;margin-top:2px;}
+.alert-body{flex:1;}
+.alert-title{font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:3px;}
+.alert-desc{font-size:.65rem;color:var(--muted);margin-bottom:8px;line-height:1.4;}
+.alert-time{font-size:.58rem;color:var(--muted);}
+.alert-actions{display:flex;gap:6px;margin-top:8px;}
+.aa-btn{padding:6px 12px;border-radius:8px;border:none;font-family:'Poppins',sans-serif;font-size:.62rem;font-weight:700;cursor:pointer;}
+.aa-teal{background:var(--teal);color:white;}
+.aa-outline{background:#F5F5F5;color:var(--muted);}
+.aa-red{background:rgba(255,107,107,0.1);color:var(--red);}
+
+/* ══════ CLINIC DETAIL SHEET ══════ */
+.sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:150;}
+.sheet-overlay.show{display:block;}
+.detail-sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:white;border-radius:24px 24px 0 0;padding:20px 20px 32px;z-index:200;display:none;max-height:88vh;overflow-y:auto;}
+.detail-sheet.show{display:block;animation:slideUp .3s ease;}
+.sheet-handle{width:40px;height:4px;background:#E0E0E0;border-radius:2px;margin:0 auto 18px;}
+.ds-top{display:flex;align-items:center;gap:13px;margin-bottom:16px;}
+.ds-icon{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.ds-info{flex:1;}
+.ds-name{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:2px;}
+.ds-meta{font-size:.65rem;color:var(--muted);}
+.ds-status{font-size:.62rem;font-weight:700;padding:4px 12px;border-radius:100px;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.info-item{background:#F8FFFE;border-radius:12px;padding:12px;}
+.info-lbl{font-size:.58rem;font-weight:600;color:var(--muted);margin-bottom:3px;}
+.info-val{font-size:.82rem;font-weight:700;color:var(--text);}
+.sheet-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sa-btn{padding:12px;border-radius:13px;border:none;font-family:'Poppins',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;}
+.sa-teal{background:var(--teal);color:white;}
+.sa-gold{background:var(--gold-light);color:#CC7A00;}
+.sa-red{background:rgba(255,107,107,0.1);color:var(--red);}
+.sa-full{grid-column:1/-1;padding:13px;border-radius:13px;border:none;font-family:'Poppins',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--teal),var(--teal2));color:white;}
+.close-btn{position:absolute;top:20px;right:20px;width:30px;height:30px;border-radius:50%;background:#F0F0F0;border:none;font-size:.85rem;cursor:pointer;}
+
+/* ══════ BOTTOM NAV ══════ */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:white;border-top:1px solid #F0F0F0;display:grid;grid-template-columns:repeat(4,1fr);padding:8px 0 20px;box-shadow:0 -4px 20px rgba(0,0,0,0.06);z-index:100;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px;position:relative;}
+.nav-icon{font-size:1.2rem;}
+.nav-label{font-size:.52rem;font-weight:600;color:var(--muted);}
+.nav-item.active .nav-label{color:var(--teal);}
+.nav-badge{position:absolute;top:2px;right:18px;width:16px;height:16px;background:var(--red);border-radius:50%;font-size:.48rem;font-weight:800;color:white;display:flex;align-items:center;justify-content:center;}
+
+/* TOAST */
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%);background:#1A2E2A;color:white;padding:11px 20px;border-radius:100px;font-size:.75rem;font-weight:600;z-index:400;display:none;white-space:nowrap;}
+.toast.show{display:block;animation:fadeUp .3s ease;}
+</style>
+</head>
+<body>
+<div class="phone-wrap">
+
+<!-- ═══════════════════════════════════ -->
+<!-- SCREEN 1: PLATFORM OVERVIEW        -->
+<!-- ═══════════════════════════════════ -->
+<div class="screen active" id="overview">
+
+  <div class="sa-header">
+    <div class="sh-top">
+      <div class="sh-brand">HAL<span>SAA</span></div>
+      <div class="sh-role">⚡ Super Admin</div>
+    </div>
+    <div class="sh-body">
+      <div class="sh-avatar">👑</div>
+      <div class="sh-info">
+        <div class="sh-name">Medhara Innovations</div>
+        <div class="sh-sub">Platform Owner · HALSAA</div>
+        <div class="sh-date">Mon, 8 Dec 2025 · 11:30 AM</div>
+      </div>
+      <div class="sh-live"><div class="live-dot"></div><span class="live-text">LIVE</span></div>
+    </div>
+    <!-- Live ticker -->
+    <div class="ticker-wrap" style="margin:14px -18px -22px;padding:8px 0;">
+      <div class="ticker">
+        <span class="ticker-item">🏥 Sri Sai Hospital joined — Warangal</span>
+        <span class="ticker-item">💰 ₹2,340 collected today</span>
+        <span class="ticker-item">📲 T-026 confirmed — Ramesh Kumar</span>
+        <span class="ticker-item">⚠️ Vijaya Diagnostics — low activity</span>
+        <span class="ticker-item">🎉 100th clinic milestone reached!</span>
+        <span class="ticker-item">📊 42 patients served today</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform KPI cards -->
+  <div class="platform-stats">
+    <div class="pstat-card" style="animation-delay:.04s">
+      <div class="psc-top"><div class="psc-icon">🏥</div><div class="psc-trend trend-up">+3 this week</div></div>
+      <div class="psc-val" style="color:var(--teal)">84</div>
+      <div class="psc-label">Active Clinics</div>
+    </div>
+    <div class="pstat-card" style="animation-delay:.08s">
+      <div class="psc-top"><div class="psc-icon">👥</div><div class="psc-trend trend-up">+12%</div></div>
+      <div class="psc-val" style="color:var(--gold)">2,340</div>
+      <div class="psc-label">Patients Today</div>
+    </div>
+    <div class="pstat-card" style="animation-delay:.12s">
+      <div class="psc-top"><div class="psc-icon">💰</div><div class="psc-trend trend-up">+8%</div></div>
+      <div class="psc-val" style="color:var(--green)">₹38.4K</div>
+      <div class="psc-label">Revenue Today</div>
+    </div>
+    <div class="pstat-card" style="animation-delay:.16s">
+      <div class="psc-top"><div class="psc-icon">⚠️</div><div class="psc-trend trend-down">-2 fixed</div></div>
+      <div class="psc-val" style="color:var(--red)">5</div>
+      <div class="psc-label">Active Alerts</div>
+    </div>
+  </div>
+
+  <!-- Revenue hero -->
+  <div class="rev-hero">
+    <div class="rh-label">💰 Platform Revenue — December 2025</div>
+    <div class="rh-amount">₹4,<span>20,000</span></div>
+    <div class="rh-sub">84 clinics × avg 25 patients/day × ₹15 — 8 days</div>
+    <div class="rh-row">
+      <div class="rh-chip gold-chip"><div class="rh-chip-val">₹2,80,000</div><div class="rh-chip-label">Patient fees</div></div>
+      <div class="rh-chip teal-chip"><div class="rh-chip-val">₹1,40,000</div><div class="rh-chip-label">Clinic fees</div></div>
+      <div class="rh-chip"><div class="rh-chip-val" style="color:var(--red)">-₹28,000</div><div class="rh-chip-label">Infrastructure</div></div>
+    </div>
+  </div>
+
+  <!-- Active clinics -->
+  <div class="sec-label">Live Clinics Today <span class="sec-badge badge-teal">84 active</span></div>
+  <div class="clinic-list">
+
+    <div class="clinic-card active-c" style="animation-delay:.04s" onclick="openClinicSheet('Sri Sai Hospital','Hanamkonda, Warangal','Clinic + Lab','42 patients','₹630')">
+      <div class="cc-top">
+        <div class="cc-icon icon-teal">🏥</div>
+        <div class="cc-info">
+          <div class="cc-name">Sri Sai Hospital</div>
+          <div class="cc-city">📍 Hanamkonda, Warangal</div>
+          <span class="cc-type type-both">Clinic + Lab</span>
+        </div>
+        <div class="cc-right">
+          <div class="cc-status st-active">Live ●</div>
+          <div class="cc-rev">₹630</div>
+          <div class="cc-patients">42 patients</div>
+        </div>
+      </div>
+      <div class="cc-stats-row">
+        <div class="cc-stat"><div class="cc-stat-val">42</div><div class="cc-stat-lbl">Patients</div></div>
+        <div class="cc-stat"><div class="cc-stat-val">26</div><div class="cc-stat-lbl">Done</div></div>
+        <div class="cc-stat"><div class="cc-stat-val">14</div><div class="cc-stat-lbl">Waiting</div></div>
+        <div class="cc-stat"><div class="cc-stat-val">4.7%</div><div class="cc-stat-lbl">No-show</div></div>
+      </div>
+    </div>
+
+    <div class="clinic-card alert-c" style="animation-delay:.08s" onclick="openClinicSheet('Vijaya Diagnostics','Kazipet, Warangal','Lab Only','8 patients','₹80')">
+      <div class="cc-top">
+        <div class="cc-icon icon-red">🧪</div>
+        <div class="cc-info">
+          <div class="cc-name">Vijaya Diagnostics</div>
+          <div class="cc-city">📍 Kazipet, Warangal</div>
+          <span class="cc-type type-lab">Lab Only</span>
+        </div>
+        <div class="cc-right">
+          <div class="cc-status st-alert">⚠️ Low Activity</div>
+          <div class="cc-rev">₹80</div>
+          <div class="cc-patients">8 patients</div>
+        </div>
+      </div>
+      <div class="cc-stats-row">
+        <div class="cc-stat"><div class="cc-stat-val">8</div><div class="cc-stat-lbl">Patients</div></div>
+        <div class="cc-stat"><div class="cc-stat-val">6</div><div class="cc-stat-lbl">Done</div></div>
+        <div class="cc-stat"><div class="cc-stat-val">2</div><div class="cc-stat-lbl">Waiting</div></div>
+        <div class="cc-stat"><div class="cc-stat-val" style="color:var(--red)">25%</div><div class="cc-stat-lbl">No-show</div></div>
+      </div>
+      <div class="cc-actions">
+        <button class="cca-btn cca-teal" onclick="event.stopPropagation();showToast('📞 Calling Vijaya Diagnostics...')">📞 Call Clinic</button>
+        <button class="cca-btn cca-gold" onclick="event.stopPropagation();showToast('📲 Alert sent via WhatsApp')">📲 Send Alert</button>
+        <button class="cca-btn cca-red" onclick="event.stopPropagation();showToast('⏸ Clinic suspended!')">⏸ Suspend</button>
+      </div>
+    </div>
+
+    <div class="clinic-card active-c" style="animation-delay:.12s" onclick="openClinicSheet('Vision Eye Clinic','Warangal City','Clinic Only','28 patients','₹280')">
+      <div class="cc-top">
+        <div class="cc-icon icon-teal">👁️</div>
+        <div class="cc-info">
+          <div class="cc-name">Vision Eye Clinic</div>
+          <div class="cc-city">📍 Warangal City</div>
+          <span class="cc-type type-clinic">Clinic Only</span>
+        </div>
+        <div class="cc-right">
+          <div class="cc-status st-active">Live ●</div>
+          <div class="cc-rev">₹280</div>
+          <div class="cc-patients">28 patients</div>
+        </div>
+      </div>
+      <div class="cc-stats-row">
+        <div class="cc-stat"><div class="cc-stat-val">28</div><div class="cc-stat-lbl">Patients</div></div>
+        <div class="cc-stat"><div class="cc-stat-val">18</div><div class="cc-stat-lbl">Done</div></div>
+        <div class="cc-stat"><div class="cc-stat-val">10</div><div class="cc-stat-lbl">Waiting</div></div>
+        <div class="cc-stat"><div class="cc-stat-val">3.2%</div><div class="cc-stat-lbl">No-show</div></div>
+      </div>
+    </div>
+
+    <div class="clinic-card hold-c" style="animation-delay:.16s" onclick="openClinicSheet('City Dental Care','Karimnagar','Clinic Only','0 patients','₹0')">
+      <div class="cc-top">
+        <div class="cc-icon icon-gold">🦷</div>
+        <div class="cc-info">
+          <div class="cc-name">City Dental Care</div>
+          <div class="cc-city">📍 Karimnagar</div>
+          <span class="cc-type type-clinic">Clinic Only</span>
+        </div>
+        <div class="cc-right">
+          <div class="cc-status st-hold">On Hold</div>
+          <div class="cc-rev">₹0</div>
+          <div class="cc-patients">Queue paused</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="clinic-card inactive-c" style="animation-delay:.2s" onclick="openClinicSheet('Nalgonda Clinic','Nalgonda','Clinic + Lab','—','—')">
+      <div class="cc-top">
+        <div class="cc-icon icon-gray">🏥</div>
+        <div class="cc-info">
+          <div class="cc-name">Nalgonda Clinic</div>
+          <div class="cc-city">📍 Nalgonda</div>
+          <span class="cc-type" style="background:#F0F0F0;color:var(--muted);">Inactive</span>
+        </div>
+        <div class="cc-right">
+          <div class="cc-status st-inactive">Inactive</div>
+          <div class="cc-patients">Last active: 2 Dec</div>
+        </div>
+      </div>
+      <div class="cc-actions">
+        <button class="cca-btn cca-teal" onclick="event.stopPropagation();showToast('📞 Calling Nalgonda Clinic...')">📞 Follow Up</button>
+        <button class="cca-btn cca-red" onclick="event.stopPropagation();showToast('🗑️ Clinic removed!')">Remove</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- SCREEN 2: PLATFORM ANALYTICS       -->
+<!-- ═══════════════════════════════════ -->
+<div class="screen" id="analytics">
+  <div class="sa-header" style="padding-bottom:18px;">
+    <div class="sh-top"><div class="sh-brand">HAL<span>SAA</span></div><div class="sh-role">⚡ Super Admin</div></div>
+    <div style="position:relative;z-index:1;">
+      <div style="font-size:.6rem;color:rgba(255,255,255,0.55);margin-bottom:3px;">Platform Intelligence</div>
+      <div style="font-size:1.1rem;font-weight:700;color:white;">Revenue & Growth</div>
+    </div>
+  </div>
+
+  <div class="analytics-body">
+    <div class="period-row">
+      <div class="period-chip active">Today</div>
+      <div class="period-chip" onclick="switchPeriod(this)">This Week</div>
+      <div class="period-chip" onclick="switchPeriod(this)">This Month</div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card" style="animation-delay:.04s"><div class="kpi-icon">💰</div><div class="kpi-val" style="color:var(--teal)">₹38.4K</div><div class="kpi-label">Platform Revenue</div><div class="kpi-trend" style="color:var(--green)">↑ +12% vs yesterday</div></div>
+      <div class="kpi-card" style="animation-delay:.08s"><div class="kpi-icon">🏥</div><div class="kpi-val" style="color:var(--gold)">84</div><div class="kpi-label">Active Clinics</div><div class="kpi-trend" style="color:var(--green)">↑ +3 this week</div></div>
+      <div class="kpi-card" style="animation-delay:.12s"><div class="kpi-icon">👥</div><div class="kpi-val" style="color:var(--blue)">2,340</div><div class="kpi-label">Patients Today</div><div class="kpi-trend" style="color:var(--green)">↑ +8% growth</div></div>
+      <div class="kpi-card" style="animation-delay:.16s"><div class="kpi-icon">📊</div><div class="kpi-val" style="color:var(--purple)">₹16.4</div><div class="kpi-label">Avg Revenue/Patient</div><div class="kpi-trend" style="color:var(--gold)">→ Stable</div></div>
+    </div>
+
+    <!-- Revenue chart -->
+    <div class="chart-card">
+      <div class="chart-title">Daily Revenue This Week (₹)</div>
+      <div class="bar-chart" id="revChart"></div>
+      <div style="display:flex;gap:6px;" id="revLabels"></div>
+    </div>
+
+    <!-- Patients chart -->
+    <div class="chart-card">
+      <div class="chart-title">Patients Per Day</div>
+      <div class="bar-chart" id="patChart"></div>
+      <div style="display:flex;gap:6px;" id="patLabels"></div>
+    </div>
+
+    <!-- Revenue breakdown -->
+    <div class="breakdown-card">
+      <div class="chart-title">Revenue Breakdown — December</div>
+      <div class="bk-row"><div class="bk-left"><div class="bk-dot" style="background:var(--gold)"></div>Patient fees (₹10/booking)</div><div class="bk-val" style="color:var(--gold)">₹2,80,000</div></div>
+      <div class="bk-row"><div class="bk-left"><div class="bk-dot" style="background:var(--teal)"></div>Clinic fees (₹5/patient)</div><div class="bk-val" style="color:var(--teal)">₹1,40,000</div></div>
+      <div class="bk-row"><div class="bk-left"><div class="bk-dot" style="background:var(--red)"></div>Infrastructure costs</div><div class="bk-val" style="color:var(--red)">-₹24,200</div></div>
+      <div class="bk-row"><div class="bk-left"><div class="bk-dot" style="background:var(--blue)"></div>Razorpay (2% on ₹10)</div><div class="bk-val" style="color:var(--blue)">-₹5,600</div></div>
+      <div class="bk-row" style="margin-top:4px;"><div class="bk-left" style="font-weight:700;font-size:.82rem;">Net Profit</div><div class="bk-val" style="color:var(--teal);font-size:1rem;">₹3,90,200</div></div>
+    </div>
+
+    <!-- Top cities -->
+    <div class="sec-label" style="padding:0 0 10px;">Top Cities by Revenue</div>
+    <div class="city-list">
+      <div class="city-row"><div class="city-rank">🥇</div><div class="city-info"><div class="city-name">Warangal</div><div class="city-count">32 clinics · 840 patients/day</div></div><div class="city-rev">₹12,600</div></div>
+      <div class="city-row"><div class="city-rank">🥈</div><div class="city-info"><div class="city-name">Karimnagar</div><div class="city-count">18 clinics · 520 patients/day</div></div><div class="city-rev">₹7,800</div></div>
+      <div class="city-row"><div class="city-rank">🥉</div><div class="city-info"><div class="city-name">Nizamabad</div><div class="city-count">14 clinics · 380 patients/day</div></div><div class="city-rev">₹5,700</div></div>
+      <div class="city-row"><div class="city-rank" style="color:var(--muted);font-size:.85rem;">4</div><div class="city-info"><div class="city-name">Khammam</div><div class="city-count">12 clinics · 310 patients/day</div></div><div class="city-rev">₹4,650</div></div>
+      <div class="city-row"><div class="city-rank" style="color:var(--muted);font-size:.85rem;">5</div><div class="city-info"><div class="city-name">Nalgonda</div><div class="city-count">8 clinics · 190 patients/day</div></div><div class="city-rev">₹2,850</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- SCREEN 3: BILLING & INVOICES       -->
+<!-- ═══════════════════════════════════ -->
+<div class="screen" id="billing">
+  <div class="sa-header" style="padding-bottom:18px;">
+    <div class="sh-top"><div class="sh-brand">HAL<span>SAA</span></div><div class="sh-role">⚡ Super Admin</div></div>
+    <div style="position:relative;z-index:1;">
+      <div style="font-size:.6rem;color:rgba(255,255,255,0.55);margin-bottom:3px;">Finance</div>
+      <div style="font-size:1.1rem;font-weight:700;color:white;">Billing & Invoices</div>
+    </div>
+  </div>
+
+  <div class="billing-body">
+    <div class="billing-hero">
+      <div class="bh-label">💰 December 2025 — Platform Billing</div>
+      <div class="bh-amount">₹4,<span>20,000</span></div>
+      <div class="bh-sub">84 clinics · 28,000 patients · 8 days</div>
+      <div class="bh-chips">
+        <div class="bh-chip"><div class="bh-chip-val" style="color:var(--green)">72</div><div class="bh-chip-lbl">Paid</div></div>
+        <div class="bh-chip"><div class="bh-chip-val" style="color:var(--gold)">8</div><div class="bh-chip-lbl">Pending</div></div>
+        <div class="bh-chip"><div class="bh-chip-val" style="color:var(--red)">4</div><div class="bh-chip-lbl">Overdue</div></div>
+      </div>
+    </div>
+
+    <div class="bill-filter">
+      <div class="bf-chip active">All</div>
+      <div class="bf-chip" onclick="filterBill(this)">Paid</div>
+      <div class="bf-chip" onclick="filterBill(this)">Pending</div>
+      <div class="bf-chip" onclick="filterBill(this)">Overdue</div>
+    </div>
+
+    <div class="invoice-list">
+      <div class="invoice-card" style="animation-delay:.04s">
+        <div class="ic-top">
+          <div class="ic-icon icon-teal">🏥</div>
+          <div class="ic-info"><div class="ic-clinic">Sri Sai Hospital</div><div class="ic-month">Nov 2025 · 1,240 patients</div></div>
+          <div class="ic-right"><div class="ic-amount">₹6,200</div><div class="ic-status paid">Paid ✓</div></div>
+        </div>
+        <div class="ic-actions">
+          <button class="ica-btn ica-teal" onclick="showToast('📥 Invoice downloaded!')">📥 Invoice PDF</button>
+          <button class="ica-btn ica-gold" onclick="showToast('📊 Details opened!')">📊 Details</button>
+        </div>
+      </div>
+
+      <div class="invoice-card" style="animation-delay:.08s">
+        <div class="ic-top">
+          <div class="ic-icon icon-gold">🧪</div>
+          <div class="ic-info"><div class="ic-clinic">Vijaya Diagnostics</div><div class="ic-month">Nov 2025 · 640 patients</div></div>
+          <div class="ic-right"><div class="ic-amount">₹3,200</div><div class="ic-status pending">Due 15 Dec</div></div>
+        </div>
+        <div class="ic-actions">
+          <button class="ica-btn ica-teal" onclick="showToast('📲 Reminder sent!')">📲 Send Reminder</button>
+          <button class="ica-btn ica-red" onclick="showToast('⏸ Account suspended!')">⏸ Suspend</button>
+        </div>
+      </div>
+
+      <div class="invoice-card" style="animation-delay:.12s">
+        <div class="ic-top">
+          <div class="ic-icon icon-red">🦷</div>
+          <div class="ic-info"><div class="ic-clinic">City Dental Care</div><div class="ic-month">Oct + Nov 2025 · 420 patients</div></div>
+          <div class="ic-right"><div class="ic-amount">₹2,100</div><div class="ic-status overdue">Overdue ⚠️</div></div>
+        </div>
+        <div class="ic-actions">
+          <button class="ica-btn ica-teal" onclick="showToast('📞 Calling clinic...')">📞 Call Now</button>
+          <button class="ica-btn ica-red" onclick="showToast('🔴 Account blocked!')">🔴 Block</button>
+        </div>
+      </div>
+
+      <div class="invoice-card" style="animation-delay:.16s">
+        <div class="ic-top">
+          <div class="ic-icon icon-teal">👁️</div>
+          <div class="ic-info"><div class="ic-clinic">Vision Eye Clinic</div><div class="ic-month">Nov 2025 · 880 patients</div></div>
+          <div class="ic-right"><div class="ic-amount">₹4,400</div><div class="ic-status paid">Paid ✓</div></div>
+        </div>
+        <div class="ic-actions">
+          <button class="ica-btn ica-teal" onclick="showToast('📥 Downloaded!')">📥 Invoice PDF</button>
+          <button class="ica-btn ica-gold" onclick="showToast('📊 Details!')">📊 Details</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- SCREEN 4: ALERTS & PLATFORM HEALTH -->
+<!-- ═══════════════════════════════════ -->
+<div class="screen" id="alerts">
+  <div class="sa-header" style="padding-bottom:18px;">
+    <div class="sh-top"><div class="sh-brand">HAL<span>SAA</span></div><div class="sh-role">⚡ Super Admin</div></div>
+    <div style="position:relative;z-index:1;">
+      <div style="font-size:.6rem;color:rgba(255,255,255,0.55);margin-bottom:3px;">Platform Health</div>
+      <div style="font-size:1.1rem;font-weight:700;color:white;">Alerts & Activity</div>
+    </div>
+  </div>
+
+  <div class="alerts-body">
+
+    <!-- Server health -->
+    <div style="background:white;border-radius:18px;padding:16px;box-shadow:var(--shadow2);margin-bottom:14px;">
+      <div style="font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">Platform Health</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="background:rgba(0,200,83,0.06);border-radius:12px;padding:12px;text-align:center;border:1px solid rgba(0,200,83,0.15);">
+          <div style="font-size:1.2rem;margin-bottom:4px;">🖥️</div>
+          <div style="font-size:.75rem;font-weight:800;color:var(--green)">99.9%</div>
+          <div style="font-size:.55rem;color:var(--muted)">Server Uptime</div>
+        </div>
+        <div style="background:rgba(0,201,167,0.06);border-radius:12px;padding:12px;text-align:center;border:1px solid rgba(0,201,167,0.15);">
+          <div style="font-size:1.2rem;margin-bottom:4px;">⚡</div>
+          <div style="font-size:.75rem;font-weight:800;color:var(--teal)">142ms</div>
+          <div style="font-size:.55rem;color:var(--muted)">API Response</div>
+        </div>
+        <div style="background:rgba(59,130,246,0.06);border-radius:12px;padding:12px;text-align:center;border:1px solid rgba(59,130,246,0.15);">
+          <div style="font-size:1.2rem;margin-bottom:4px;">📲</div>
+          <div style="font-size:.75rem;font-weight:800;color:var(--blue)">98.2%</div>
+          <div style="font-size:.55rem;color:var(--muted)">WhatsApp Delivery</div>
+        </div>
+        <div style="background:rgba(255,179,71,0.06);border-radius:12px;padding:12px;text-align:center;border:1px solid rgba(255,179,71,0.15);">
+          <div style="font-size:1.2rem;margin-bottom:4px;">💳</div>
+          <div style="font-size:.75rem;font-weight:800;color:var(--gold)">100%</div>
+          <div style="font-size:.55rem;color:var(--muted)">Payment Success</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-label" style="padding:0 0 10px;">Active Alerts <span class="sec-badge badge-red">5 alerts</span></div>
+
+    <div class="alert-card critical" style="animation-delay:.04s">
+      <div class="alert-icon">🚨</div>
+      <div class="alert-body">
+        <div class="alert-title">Vijaya Diagnostics — High No-show Rate</div>
+        <div class="alert-desc">25% no-show rate today. Suspicious activity detected — clinic may not be marking tokens done. Revenue leak possible.</div>
+        <div class="alert-time">⏱ 2 hours ago</div>
+        <div class="alert-actions">
+          <button class="aa-btn aa-teal" onclick="showToast('📞 Calling clinic...')">📞 Call Clinic</button>
+          <button class="aa-btn aa-red" onclick="showToast('⏸ Suspended!')">⏸ Suspend</button>
+          <button class="aa-btn aa-outline" onclick="showToast('✅ Dismissed')">Dismiss</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-card warning" style="animation-delay:.08s">
+      <div class="alert-icon">💰</div>
+      <div class="alert-body">
+        <div class="alert-title">City Dental Care — Payment Overdue</div>
+        <div class="alert-desc">2 months unpaid. ₹2,100 outstanding. Automatic reminder sent on 1 Dec. No response yet.</div>
+        <div class="alert-time">⏱ 3 days ago</div>
+        <div class="alert-actions">
+          <button class="aa-btn aa-teal" onclick="showToast('📲 Reminder sent!')">📲 Remind</button>
+          <button class="aa-btn aa-red" onclick="showToast('🔴 Account blocked!')">🔴 Block</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-card warning" style="animation-delay:.12s">
+      <div class="alert-icon">😴</div>
+      <div class="alert-body">
+        <div class="alert-title">Nalgonda Clinic — Inactive 6 Days</div>
+        <div class="alert-desc">Last active: 2 Dec 2025. No bookings in 6 days. Churn risk — follow up needed.</div>
+        <div class="alert-time">⏱ 6 days</div>
+        <div class="alert-actions">
+          <button class="aa-btn aa-teal" onclick="showToast('📞 Calling...')">📞 Follow Up</button>
+          <button class="aa-btn aa-outline" onclick="showToast('✅ Dismissed')">Dismiss</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-card info" style="animation-delay:.16s">
+      <div class="alert-icon">🏥</div>
+      <div class="alert-body">
+        <div class="alert-title">New Clinic Onboarding — Khammam</div>
+        <div class="alert-desc">Sree Venkateswara Hospital requested onboarding. Documents submitted. Pending approval.</div>
+        <div class="alert-time">⏱ 1 hour ago</div>
+        <div class="alert-actions">
+          <button class="aa-btn aa-teal" onclick="showToast('✅ Clinic approved!')">✅ Approve</button>
+          <button class="aa-btn aa-outline" onclick="showToast('👁️ Reviewing...')">Review Docs</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-card success" style="animation-delay:.2s">
+      <div class="alert-icon">🎉</div>
+      <div class="alert-body">
+        <div class="alert-title">Milestone — 1 Lakh Patients Served!</div>
+        <div class="alert-desc">HALSAA platform crossed 1,00,000 total patients served. 84 clinics, 5 cities, growing! 🚀</div>
+        <div class="alert-time">⏱ Today 9:30 AM</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" id="nav-overview" onclick="showScreen('overview');setNav('nav-overview')">
+    <div class="nav-icon">🏠</div><div class="nav-label" style="color:var(--teal)">Overview</div>
+  </div>
+  <div class="nav-item" id="nav-analytics" onclick="showScreen('analytics');setNav('nav-analytics')">
+    <div class="nav-icon">📊</div><div class="nav-label">Analytics</div>
+  </div>
+  <div class="nav-item" id="nav-billing" onclick="showScreen('billing');setNav('nav-billing')">
+    <div class="nav-icon">💰</div><div class="nav-label">Billing</div>
+  </div>
+  <div class="nav-item" id="nav-alerts" onclick="showScreen('alerts');setNav('nav-alerts')">
+    <div class="nav-icon">🔔</div><div class="nav-label">Alerts</div>
+    <div class="nav-badge">5</div>
+  </div>
+</div>
+
+<!-- CLINIC DETAIL SHEET -->
+<div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
+<div class="detail-sheet" id="detailSheet">
+  <button class="close-btn" onclick="closeSheet()">✕</button>
+  <div class="sheet-handle"></div>
+  <div class="ds-top">
+    <div class="ds-icon icon-teal">🏥</div>
+    <div class="ds-info">
+      <div class="ds-name" id="ds-name">Sri Sai Hospital</div>
+      <div class="ds-meta" id="ds-meta">Hanamkonda, Warangal</div>
+    </div>
+    <div class="ds-status st-active" id="ds-status">Live ●</div>
+  </div>
+  <div class="info-grid">
+    <div class="info-item"><div class="info-lbl">Module</div><div class="info-val" id="ds-type">Clinic + Lab</div></div>
+    <div class="info-item"><div class="info-lbl">Patients Today</div><div class="info-val" id="ds-patients">42</div></div>
+    <div class="info-item"><div class="info-lbl">Today Revenue</div><div class="info-val" id="ds-rev">₹630</div></div>
+    <div class="info-item"><div class="info-lbl">Monthly Bill</div><div class="info-val">₹6,200</div></div>
+    <div class="info-item"><div class="info-lbl">Bill Status</div><div class="info-val" style="color:var(--green)">Paid ✓</div></div>
+    <div class="info-item"><div class="info-lbl">Joined</div><div class="info-val">Jan 2025</div></div>
+  </div>
+  <div class="sheet-actions">
+    <button class="sa-btn sa-teal" onclick="showToast('📞 Calling clinic...');closeSheet()">📞 Call</button>
+    <button class="sa-btn sa-gold" onclick="showToast('📲 WhatsApp opened');closeSheet()">📲 WhatsApp</button>
+    <button class="sa-btn sa-red" onclick="showToast('⏸ Clinic suspended!');closeSheet()">⏸ Suspend</button>
+    <button class="sa-btn sa-teal" onclick="showToast('📊 Full report opened');closeSheet()">📊 Full Report</button>
+    <button class="sa-full" onclick="showToast('📥 Invoice sent to clinic!');closeSheet()">📥 Send Invoice via WhatsApp</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+</div>
+<script>
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const map={overview:'nav-overview',analytics:'nav-analytics',billing:'nav-billing',alerts:'nav-alerts'};
+  if(map[id])setNav(map[id]);
+  window.scrollTo(0,0);
+}
+function setNav(aid){
+  document.querySelectorAll('.nav-item').forEach(n=>{n.classList.remove('active');n.querySelector('.nav-label').style.color='var(--muted)';});
+  const el=document.getElementById(aid);
+  if(el){el.classList.add('active');el.querySelector('.nav-label').style.color='var(--teal)';}
+}
+function switchPeriod(el){document.querySelectorAll('.period-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');}
+function filterBill(el){document.querySelectorAll('.bf-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');}
+
+function openClinicSheet(name,meta,type,patients,rev){
+  document.getElementById('ds-name').textContent=name;
+  document.getElementById('ds-meta').textContent=meta;
+  document.getElementById('ds-type').textContent=type;
+  document.getElementById('ds-patients').textContent=patients;
+  document.getElementById('ds-rev').textContent=rev;
+  document.getElementById('detailSheet').classList.add('show');
+  document.getElementById('sheetOverlay').classList.add('show');
+}
+function closeSheet(){
+  document.getElementById('detailSheet').classList.remove('show');
+  document.getElementById('sheetOverlay').classList.remove('show');
+}
+
+// Revenue chart
+const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const revVals=[28000,34000,38400,31000,42000,22000,18000];
+const patVals=[1800,2100,2340,1950,2600,1400,1100];
+const maxR=Math.max(...revVals),maxP=Math.max(...patVals);
+
+function buildChart(containerId,labelId,vals,maxVal,suffix){
+  const chart=document.getElementById(containerId);
+  const lbls=document.getElementById(labelId);
+  if(!chart||!lbls)return;
+  days.forEach((d,i)=>{
+    const w=document.createElement('div');w.className='bar-wrap';
+    const b=document.createElement('div');b.className='bar'+(i===4?' hl':'');
+    b.style.height=(vals[i]/maxVal*68+8)+'px';
+    b.innerHTML=`<span class="bar-v">${suffix}${(vals[i]/1000).toFixed(0)}K</span>`;
+    w.appendChild(b);chart.appendChild(w);
+    const l=document.createElement('div');l.className='bar-wrap';l.innerHTML=`<div class="bar-lbl">${d}</div>`;
+    lbls.appendChild(l);
+  });
+}
+buildChart('revChart','revLabels',revVals,maxR,'₹');
+buildChart('patChart','patLabels',patVals,maxP,'');
+
+let tt;
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2300);
+}
+</script>
+</body>
+</html>

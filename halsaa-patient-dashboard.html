@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>HALSAA — Patient Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --teal:#00C9A7;
+  --teal2:#00E8C0;
+  --teal-light:#E6FAF6;
+  --teal-mid:rgba(0,201,167,0.12);
+  --gold:#FFB347;
+  --gold-light:#FFF4E6;
+  --gold2:#FFC86B;
+  --white:#FFFFFF;
+  --bg:#F0FAF8;
+  --card:#FFFFFF;
+  --text:#1A2E2A;
+  --muted:#7A9E98;
+  --border:rgba(0,201,167,0.15);
+  --shadow:0 4px 20px rgba(0,201,167,0.10);
+  --shadow2:0 2px 12px rgba(0,0,0,0.06);
+  --red:#FF6B6B;
+  --green:#00C853;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;}
+
+/* Phone wrapper */
+.phone-wrap{width:100%;max-width:420px;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,201,167,0.4)}50%{box-shadow:0 0 0 8px rgba(0,201,167,0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes countup{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(0,201,167,0.3)}50%{box-shadow:0 0 20px rgba(0,201,167,0.4)}}
+@keyframes tickerMove{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+
+/* Screen system */
+.screen{display:none;animation:fadeUp 0.35s ease both;}
+.screen.active{display:block;}
+
+/* ════════════════════ */
+/* SCREEN 1: HOME      */
+/* ════════════════════ */
+#home{padding-bottom:100px;}
+
+/* Header */
+.home-header{background:linear-gradient(135deg,var(--teal) 0%,#00B896 100%);padding:52px 20px 70px;position:relative;overflow:hidden;}
+.home-header::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:rgba(255,255,255,0.08);border-radius:50%;}
+.home-header::after{content:'';position:absolute;bottom:-30px;left:-20px;width:120px;height:120px;background:rgba(255,255,255,0.06);border-radius:50%;}
+.hh-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;position:relative;z-index:1;}
+.hh-brand{font-size:1.4rem;font-weight:900;color:white;letter-spacing:-.02em;}
+.hh-brand span{color:var(--gold);}
+.hh-notif{width:38px;height:38px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;position:relative;}
+.notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--gold);border-radius:50%;border:2px solid var(--teal);}
+.hh-greet{position:relative;z-index:1;}
+.hh-hi{font-size:.85rem;color:rgba(255,255,255,0.75);font-weight:500;margin-bottom:3px;}
+.hh-name{font-size:1.4rem;font-weight:800;color:white;margin-bottom:4px;}
+.hh-sub{font-size:.75rem;color:rgba(255,255,255,0.6);}
+
+/* Floating active token card */
+.active-token-card{margin:0 16px;margin-top:-44px;background:white;border-radius:20px;padding:18px;box-shadow:0 8px 32px rgba(0,201,167,0.18);position:relative;z-index:10;animation:countup 0.5s ease both;}
+.atc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.atc-label{font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.atc-live{display:flex;align-items:center;gap:5px;background:rgba(0,200,83,0.1);border-radius:100px;padding:3px 10px;}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;}
+.atc-live-text{font-size:.62rem;font-weight:800;color:var(--green);}
+.atc-body{display:flex;align-items:center;gap:14px;}
+.atc-token-num{font-size:2.8rem;font-weight:900;color:var(--teal);line-height:1;letter-spacing:-.03em;}
+.atc-token-prefix{font-size:1.2rem;color:var(--gold);}
+.atc-info{flex:1;}
+.atc-clinic{font-size:.9rem;font-weight:800;color:var(--text);margin-bottom:2px;}
+.atc-doctor{font-size:.72rem;color:var(--muted);margin-bottom:6px;}
+.atc-progress-wrap{background:#f0f0f0;border-radius:100px;height:6px;margin-bottom:4px;}
+.atc-progress{background:linear-gradient(90deg,var(--teal),var(--teal2));border-radius:100px;height:6px;width:65%;transition:width 1s;}
+.atc-progress-text{font-size:.62rem;color:var(--muted);font-weight:600;}
+.atc-footer{display:flex;gap:8px;margin-top:14px;}
+.atc-btn{flex:1;padding:10px;border-radius:12px;border:none;font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer;transition:all .2s;}
+.atc-btn-primary{background:var(--teal);color:white;}
+.atc-btn-secondary{background:var(--teal-light);color:var(--teal);}
+
+/* Queue position mini */
+.queue-mini{margin:14px 16px 0;background:linear-gradient(135deg,var(--gold-light),#FFF9F0);border:1px solid rgba(255,179,71,0.2);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;}
+.qm-icon{font-size:1.5rem;}
+.qm-text{flex:1;}
+.qm-title{font-size:.82rem;font-weight:800;color:#CC7A00;margin-bottom:1px;}
+.qm-sub{font-size:.68rem;color:rgba(204,122,0,0.7);}
+.qm-num{font-size:1.6rem;font-weight:900;color:var(--gold);}
+
+/* Section title */
+.sec-title{padding:20px 16px 10px;font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+
+/* Quick actions */
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;}
+.qa-card{background:white;border-radius:18px;padding:18px 16px;box-shadow:var(--shadow2);cursor:pointer;transition:all .2s;border:1.5px solid transparent;animation:fadeUp .4s ease both;}
+.qa-card:active{transform:scale(0.97);}
+.qa-card:nth-child(1){animation-delay:.05s;}
+.qa-card:nth-child(2){animation-delay:.1s;}
+.qa-card:nth-child(3){animation-delay:.15s;}
+.qa-card:nth-child(4){animation-delay:.2s;}
+.qa-icon{font-size:1.6rem;margin-bottom:10px;display:block;}
+.qa-title{font-size:.85rem;font-weight:800;color:var(--text);margin-bottom:3px;}
+.qa-sub{font-size:.66rem;color:var(--muted);}
+.qa-card.teal{border-color:var(--border);background:linear-gradient(135deg,var(--teal-light),white);}
+.qa-card.gold{border-color:rgba(255,179,71,0.2);background:linear-gradient(135deg,var(--gold-light),white);}
+
+/* Past visits */
+.visit-list{display:flex;flex-direction:column;gap:10px;padding:0 16px;}
+.visit-card{background:white;border-radius:16px;padding:14px 16px;box-shadow:var(--shadow2);display:flex;align-items:center;gap:12px;animation:slideIn .4s ease both;}
+.vc-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.vc-teal{background:var(--teal-light);}
+.vc-gold{background:var(--gold-light);}
+.vc-info{flex:1;}
+.vc-clinic{font-size:.82rem;font-weight:800;color:var(--text);}
+.vc-date{font-size:.65rem;color:var(--muted);margin-top:1px;}
+.vc-right{text-align:right;}
+.vc-status{font-size:.62rem;font-weight:800;padding:3px 9px;border-radius:100px;}
+.status-done{background:rgba(0,200,83,0.1);color:var(--green);}
+.status-report{background:var(--teal-mid);color:var(--teal);}
+.vc-fee{font-size:.72rem;color:var(--muted);margin-top:3px;}
+
+/* ════════════════════ */
+/* SCREEN 2: BOOK      */
+/* ════════════════════ */
+#book{padding-bottom:100px;}
+.book-header{background:linear-gradient(135deg,var(--teal),#00B896);padding:52px 20px 24px;display:flex;align-items:center;gap:12px;}
+.back-btn{width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;}
+.bh-title{font-size:1.1rem;font-weight:800;color:white;}
+
+.search-wrap{padding:16px;}
+.search-box{background:white;border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow2);}
+.search-icon{font-size:1rem;color:var(--muted);}
+.search-input{flex:1;border:none;outline:none;font-family:'Nunito',sans-serif;font-size:.88rem;color:var(--text);background:transparent;}
+.search-input::placeholder{color:var(--muted);}
+
+.filter-chips{display:flex;gap:8px;padding:0 16px 14px;overflow-x:auto;scrollbar-width:none;}
+.filter-chips::-webkit-scrollbar{display:none;}
+.chip{padding:7px 16px;border-radius:100px;font-size:.72rem;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid;transition:all .2s;}
+.chip.active{background:var(--teal);border-color:var(--teal);color:white;}
+.chip:not(.active){background:white;border-color:var(--border);color:var(--muted);}
+
+.clinic-list{display:flex;flex-direction:column;gap:12px;padding:0 16px;}
+.clinic-card{background:white;border-radius:18px;padding:16px;box-shadow:var(--shadow2);cursor:pointer;transition:all .2s;animation:fadeUp .4s ease both;}
+.clinic-card:active{transform:scale(0.98);}
+.cc-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
+.cc-avatar{width:48px;height:48px;border-radius:14px;background:var(--teal-light);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+.cc-info{flex:1;}
+.cc-name{font-size:.9rem;font-weight:800;color:var(--text);margin-bottom:2px;}
+.cc-spec{font-size:.68rem;color:var(--muted);margin-bottom:4px;}
+.cc-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.cc-tag{font-size:.58rem;font-weight:700;padding:2px 7px;border-radius:100px;background:var(--teal-mid);color:var(--teal);}
+.cc-tag.gold{background:rgba(255,179,71,0.1);color:#CC7A00;}
+.cc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;border-top:1px solid #F5F5F5;padding-top:12px;}
+.cc-stat{text-align:center;}
+.cc-stat-val{font-size:.88rem;font-weight:800;color:var(--teal);}
+.cc-stat-label{font-size:.58rem;color:var(--muted);}
+.cc-book-btn{width:100%;margin-top:12px;padding:12px;background:var(--teal);color:white;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;cursor:pointer;transition:all .2s;}
+.cc-book-btn:active{transform:scale(0.98);}
+
+/* ════════════════════ */
+/* SCREEN 3: TRACKER   */
+/* ════════════════════ */
+#tracker{padding-bottom:100px;}
+.tracker-header{background:linear-gradient(135deg,var(--teal),#00B896);padding:52px 20px 24px;display:flex;align-items:center;gap:12px;}
+
+.tracker-body{padding:16px;}
+
+/* Big token display */
+.token-hero{background:white;border-radius:24px;padding:24px;box-shadow:var(--shadow);margin-bottom:14px;text-align:center;position:relative;overflow:hidden;animation:glow 3s ease-in-out infinite;}
+.token-hero::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:var(--teal-mid);border-radius:50%;}
+.token-hero::after{content:'';position:absolute;bottom:-20px;left:-20px;width:80px;height:80px;background:rgba(255,179,71,0.08);border-radius:50%;}
+.th-label{font-size:.68rem;font-weight:800;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;position:relative;z-index:1;}
+.th-token{font-size:4rem;font-weight:900;color:var(--teal);line-height:1;position:relative;z-index:1;letter-spacing:-.03em;}
+.th-prefix{font-size:1.8rem;color:var(--gold);}
+.th-clinic{font-size:.88rem;font-weight:700;color:var(--text);margin-top:6px;position:relative;z-index:1;}
+.th-doctor{font-size:.7rem;color:var(--muted);position:relative;z-index:1;}
+
+/* Now serving */
+.now-serving{background:linear-gradient(135deg,var(--gold-light),#FFF9F0);border:1.5px solid rgba(255,179,71,0.25);border-radius:18px;padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:14px;}
+.ns-icon{font-size:1.8rem;}
+.ns-info{flex:1;}
+.ns-label{font-size:.62rem;font-weight:800;letter-spacing:.1em;color:#CC7A00;text-transform:uppercase;margin-bottom:2px;}
+.ns-token{font-size:1.6rem;font-weight:900;color:var(--gold);}
+.ns-name{font-size:.72rem;color:rgba(204,122,0,0.8);}
+.ns-wait{text-align:right;}
+.ns-wait-num{font-size:1.4rem;font-weight:900;color:var(--text);}
+.ns-wait-label{font-size:.6rem;color:var(--muted);}
+
+/* Queue progress steps */
+.queue-steps{background:white;border-radius:18px;padding:18px;box-shadow:var(--shadow2);margin-bottom:14px;}
+.qs-title{font-size:.7rem;font-weight:800;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
+.qs-list{display:flex;flex-direction:column;gap:0;}
+.qs-item{display:flex;align-items:center;gap:12px;padding:8px 0;position:relative;}
+.qs-item:not(:last-child)::after{content:'';position:absolute;left:15px;top:36px;width:2px;height:calc(100% - 8px);background:#F0F0F0;}
+.qs-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0;z-index:1;}
+.qs-done .qs-dot{background:var(--teal);color:white;}
+.qs-active .qs-dot{background:var(--gold);color:white;animation:pulse 1.5s infinite;}
+.qs-wait .qs-dot{background:#F0F0F0;color:var(--muted);}
+.qs-text{flex:1;}
+.qs-name{font-size:.82rem;font-weight:700;}
+.qs-done .qs-name{color:var(--teal);}
+.qs-active .qs-name{color:var(--text);}
+.qs-wait .qs-name{color:var(--muted);}
+.qs-sub{font-size:.62rem;color:var(--muted);}
+.qs-time{font-size:.65rem;font-weight:700;color:var(--muted);}
+
+/* Arrive alert */
+.arrive-alert{background:linear-gradient(135deg,var(--teal),var(--teal2));border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.aa-icon{font-size:1.5rem;}
+.aa-text{flex:1;}
+.aa-title{font-size:.85rem;font-weight:800;color:white;margin-bottom:2px;}
+.aa-sub{font-size:.68rem;color:rgba(255,255,255,0.8);}
+
+/* ════════════════════ */
+/* SCREEN 4: HISTORY   */
+/* ════════════════════ */
+#history{padding-bottom:100px;}
+.history-header{background:linear-gradient(135deg,var(--teal),#00B896);padding:52px 20px 24px;display:flex;align-items:center;gap:12px;}
+
+.history-body{padding:16px;}
+.month-label{font-size:.68rem;font-weight:800;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;margin-top:16px;}
+.history-card{background:white;border-radius:18px;padding:16px;box-shadow:var(--shadow2);margin-bottom:10px;animation:fadeUp .4s ease both;}
+.hc-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
+.hc-icon{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.hc-teal{background:var(--teal-light);}
+.hc-gold{background:var(--gold-light);}
+.hc-info{flex:1;}
+.hc-clinic{font-size:.88rem;font-weight:800;color:var(--text);margin-bottom:2px;}
+.hc-doctor{font-size:.68rem;color:var(--muted);margin-bottom:4px;}
+.hc-date{font-size:.65rem;color:var(--muted);}
+.hc-right{text-align:right;}
+.hc-fee{font-size:.88rem;font-weight:800;color:var(--text);}
+.hc-status{font-size:.6rem;font-weight:800;padding:3px 9px;border-radius:100px;margin-top:4px;display:inline-block;}
+.hc-actions{display:flex;gap:8px;}
+.hc-btn{flex:1;padding:9px;border-radius:10px;border:none;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;}
+.hc-btn-outline{background:var(--teal-light);color:var(--teal);}
+.hc-btn-gold{background:var(--gold-light);color:#CC7A00;}
+
+/* ════════════════════ */
+/* SCREEN 5: PROFILE   */
+/* ════════════════════ */
+#profile{padding-bottom:100px;}
+.profile-header{background:linear-gradient(135deg,var(--teal),#00B896);padding:52px 20px 80px;text-align:center;position:relative;}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 10px;box-shadow:0 4px 20px rgba(0,0,0,0.1);}
+.profile-name{font-size:1.2rem;font-weight:800;color:white;margin-bottom:3px;}
+.profile-phone{font-size:.78rem;color:rgba(255,255,255,0.7);}
+
+.profile-stats{margin:0 16px;margin-top:-32px;background:white;border-radius:20px;padding:20px;box-shadow:var(--shadow);display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;position:relative;z-index:5;}
+.ps-item{text-align:center;padding:0 8px;}
+.ps-item:not(:last-child){border-right:1px solid #F0F0F0;}
+.ps-val{font-size:1.4rem;font-weight:900;color:var(--teal);}
+.ps-label{font-size:.6rem;color:var(--muted);margin-top:2px;}
+
+.profile-body{padding:16px;}
+.profile-section{background:white;border-radius:18px;box-shadow:var(--shadow2);overflow:hidden;margin-bottom:14px;}
+.ps-header{padding:14px 16px;border-bottom:1px solid #F5F5F5;font-size:.7rem;font-weight:800;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
+.profile-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #F8F8F8;cursor:pointer;transition:background .15s;}
+.profile-item:last-child{border-bottom:none;}
+.profile-item:active{background:#FAFAFA;}
+.pi-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
+.pi-teal{background:var(--teal-light);}
+.pi-gold{background:var(--gold-light);}
+.pi-red{background:rgba(255,107,107,0.1);}
+.pi-text{flex:1;}
+.pi-title{font-size:.85rem;font-weight:700;color:var(--text);}
+.pi-sub{font-size:.65rem;color:var(--muted);margin-top:1px;}
+.pi-arrow{color:var(--muted);font-size:.8rem;}
+
+/* ════════════════════ */
+/* BOTTOM NAV          */
+/* ════════════════════ */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:white;border-top:1px solid #F0F0F0;display:grid;grid-template-columns:repeat(5,1fr);padding:8px 0 20px;box-shadow:0 -4px 20px rgba(0,0,0,0.06);z-index:100;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px;transition:all .15s;}
+.nav-icon{font-size:1.2rem;transition:transform .2s;}
+.nav-label{font-size:.55rem;font-weight:700;transition:color .2s;}
+.nav-item.active .nav-icon{transform:scale(1.1);}
+.nav-item.active .nav-label{color:var(--teal);}
+.nav-item:not(.active) .nav-label{color:var(--muted);}
+
+/* Book FAB */
+.fab{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:101;}
+.fab-btn{width:56px;height:56px;background:linear-gradient(135deg,var(--teal),var(--teal2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 4px 20px rgba(0,201,167,0.4);border:none;cursor:pointer;color:white;font-weight:800;transition:all .2s;}
+.fab-btn:active{transform:scale(0.95);}
+
+/* Payment sheet */
+.payment-sheet{display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:white;border-radius:24px 24px 0 0;padding:20px;box-shadow:0 -8px 40px rgba(0,0,0,0.12);z-index:200;animation:fadeUp 0.3s ease;}
+.payment-sheet.show{display:block;}
+.ps-handle{width:40px;height:4px;background:#E0E0E0;border-radius:2px;margin:0 auto 20px;}
+.ps-title{font-size:1rem;font-weight:800;color:var(--text);margin-bottom:4px;}
+.ps-sub{font-size:.75rem;color:var(--muted);margin-bottom:20px;}
+.ps-amount-card{background:var(--teal-light);border-radius:16px;padding:16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.ps-amount-label{font-size:.78rem;color:var(--teal);font-weight:700;}
+.ps-amount-val{font-size:1.6rem;font-weight:900;color:var(--teal);}
+.ps-breakdown{margin-bottom:20px;}
+.ps-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F5F5F5;font-size:.78rem;}
+.ps-row:last-child{border-bottom:none;font-weight:800;}
+.ps-row-label{color:var(--muted);}
+.ps-row-val{color:var(--text);}
+.ps-pay-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:white;border:none;border-radius:16px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;margin-bottom:10px;}
+.ps-upi-row{display:flex;gap:8px;justify-content:center;}
+.ps-upi{font-size:.65rem;color:var(--muted);padding:6px 12px;background:#F5F5F5;border-radius:8px;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:150;}
+.overlay.show{display:block;}
+</style>
+</head>
+<body>
+<div class="phone-wrap">
+
+  <!-- ════════════ SCREEN 1: HOME ════════════ -->
+  <div class="screen active" id="home">
+    <div class="home-header">
+      <div class="hh-top">
+        <div class="hh-brand">HAL<span>SAA</span></div>
+        <div class="hh-notif">🔔<div class="notif-dot"></div></div>
+      </div>
+      <div class="hh-greet">
+        <div class="hh-hi">Good Morning 👋</div>
+        <div class="hh-name">Ramesh Kumar</div>
+        <div class="hh-sub">+91 98765 43210 · Warangal</div>
+      </div>
+    </div>
+
+    <!-- Active Token Card -->
+    <div class="active-token-card">
+      <div class="atc-header">
+        <div class="atc-label">Active Token</div>
+        <div class="atc-live"><div class="live-dot"></div><span class="atc-live-text">LIVE</span></div>
+      </div>
+      <div class="atc-body">
+        <div class="atc-token-num"><span class="atc-token-prefix">T-</span>026</div>
+        <div class="atc-info">
+          <div class="atc-clinic">Sri Sai Hospital</div>
+          <div class="atc-doctor">Dr. Ramesh Kumar · General</div>
+          <div class="atc-progress-wrap"><div class="atc-progress"></div></div>
+          <div class="atc-progress-text">8 tokens ahead · ~18 min wait</div>
+        </div>
+      </div>
+      <div class="atc-footer">
+        <button class="atc-btn atc-btn-primary" onclick="showScreen('tracker')">📍 Track Live</button>
+        <button class="atc-btn atc-btn-secondary">📞 Call Clinic</button>
+      </div>
+    </div>
+
+    <!-- Queue position -->
+    <div class="queue-mini">
+      <div class="qm-icon">⏳</div>
+      <div class="qm-text">
+        <div class="qm-title">Now Serving T-018</div>
+        <div class="qm-sub">You are 8 positions ahead</div>
+      </div>
+      <div class="qm-num">8</div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="sec-title">Quick Actions</div>
+    <div class="quick-actions">
+      <div class="qa-card teal" onclick="showScreen('book')">
+        <span class="qa-icon">🏥</span>
+        <div class="qa-title">Book Token</div>
+        <div class="qa-sub">Clinic or Lab</div>
+      </div>
+      <div class="qa-card gold" onclick="showScreen('tracker')">
+        <span class="qa-icon">📍</span>
+        <div class="qa-title">Live Tracker</div>
+        <div class="qa-sub">Track your queue</div>
+      </div>
+      <div class="qa-card" onclick="showScreen('history')">
+        <span class="qa-icon">📋</span>
+        <div class="qa-title">My Visits</div>
+        <div class="qa-sub">History & reports</div>
+      </div>
+      <div class="qa-card" onclick="showScreen('profile')">
+        <span class="qa-icon">👤</span>
+        <div class="qa-title">My Profile</div>
+        <div class="qa-sub">Settings & info</div>
+      </div>
+    </div>
+
+    <!-- Recent Visits -->
+    <div class="sec-title">Recent Visits</div>
+    <div class="visit-list">
+      <div class="visit-card">
+        <div class="vc-icon vc-teal">🏥</div>
+        <div class="vc-info">
+          <div class="vc-clinic">Sri Sai Hospital</div>
+          <div class="vc-date">Dr. Ramesh · 5 Dec 2025</div>
+        </div>
+        <div class="vc-right">
+          <div class="vc-status status-done">Completed</div>
+          <div class="vc-fee">₹310 paid</div>
+        </div>
+      </div>
+      <div class="visit-card">
+        <div class="vc-icon vc-gold">🧪</div>
+        <div class="vc-info">
+          <div class="vc-clinic">Vijaya Diagnostics</div>
+          <div class="vc-date">Blood Test · 2 Dec 2025</div>
+        </div>
+        <div class="vc-right">
+          <div class="vc-status status-report">Report Ready</div>
+          <div class="vc-fee">₹850 paid</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN 2: BOOK ════════════ -->
+  <div class="screen" id="book">
+    <div class="book-header">
+      <div class="back-btn" onclick="showScreen('home')">←</div>
+      <div class="bh-title">Book Token</div>
+    </div>
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <div class="search-icon">🔍</div>
+        <input class="search-input" placeholder="Search clinic, doctor, specialty..."/>
+      </div>
+    </div>
+
+    <div class="filter-chips">
+      <div class="chip active">All</div>
+      <div class="chip">General</div>
+      <div class="chip">Lab / Diagnostics</div>
+      <div class="chip">Specialist</div>
+      <div class="chip">Dental</div>
+      <div class="chip">Eye Care</div>
+    </div>
+
+    <div class="clinic-list">
+      <div class="clinic-card">
+        <div class="cc-top">
+          <div class="cc-avatar">🏥</div>
+          <div class="cc-info">
+            <div class="cc-name">Sri Sai Hospital</div>
+            <div class="cc-spec">Dr. Ramesh Kumar · General Medicine</div>
+            <div class="cc-tags">
+              <span class="cc-tag">Open Now</span>
+              <span class="cc-tag gold">12 tokens left</span>
+            </div>
+          </div>
+        </div>
+        <div class="cc-stats">
+          <div class="cc-stat"><div class="cc-stat-val">T-034</div><div class="cc-stat-label">Next Token</div></div>
+          <div class="cc-stat"><div class="cc-stat-val">18m</div><div class="cc-stat-label">Avg Wait</div></div>
+          <div class="cc-stat"><div class="cc-stat-val">₹300</div><div class="cc-stat-label">Fee</div></div>
+        </div>
+        <button class="cc-book-btn" onclick="showPayment('Sri Sai Hospital','Dr. Ramesh Kumar','₹300')">Book Token — ₹10 platform fee</button>
+      </div>
+
+      <div class="clinic-card">
+        <div class="cc-top">
+          <div class="cc-avatar">🧪</div>
+          <div class="cc-info">
+            <div class="cc-name">Vijaya Diagnostics</div>
+            <div class="cc-spec">Lab · Blood Test · Scan · X-Ray</div>
+            <div class="cc-tags">
+              <span class="cc-tag">Open Now</span>
+              <span class="cc-tag">Home Collection</span>
+            </div>
+          </div>
+        </div>
+        <div class="cc-stats">
+          <div class="cc-stat"><div class="cc-stat-val">T-008</div><div class="cc-stat-label">Next Token</div></div>
+          <div class="cc-stat"><div class="cc-stat-val">8m</div><div class="cc-stat-label">Avg Wait</div></div>
+          <div class="cc-stat"><div class="cc-stat-val">₹150+</div><div class="cc-stat-label">From</div></div>
+        </div>
+        <button class="cc-book-btn" onclick="showPayment('Vijaya Diagnostics','Lab Services','₹150+')">Book Token — ₹10 platform fee</button>
+      </div>
+
+      <div class="clinic-card">
+        <div class="cc-top">
+          <div class="cc-avatar">👁️</div>
+          <div class="cc-info">
+            <div class="cc-name">Vision Eye Clinic</div>
+            <div class="cc-spec">Dr. Priya Sharma · Ophthalmology</div>
+            <div class="cc-tags">
+              <span class="cc-tag">Open Now</span>
+            </div>
+          </div>
+        </div>
+        <div class="cc-stats">
+          <div class="cc-stat"><div class="cc-stat-val">T-012</div><div class="cc-stat-label">Next Token</div></div>
+          <div class="cc-stat"><div class="cc-stat-val">22m</div><div class="cc-stat-label">Avg Wait</div></div>
+          <div class="cc-stat"><div class="cc-stat-val">₹500</div><div class="cc-stat-label">Fee</div></div>
+        </div>
+        <button class="cc-book-btn" onclick="showPayment('Vision Eye Clinic','Dr. Priya Sharma','₹500')">Book Token — ₹10 platform fee</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN 3: TRACKER ════════════ -->
+  <div class="screen" id="tracker">
+    <div class="tracker-header">
+      <div class="back-btn" onclick="showScreen('home')">←</div>
+      <div class="bh-title">Live Queue Tracker</div>
+    </div>
+
+    <div class="tracker-body">
+      <!-- Token hero -->
+      <div class="token-hero">
+        <div class="th-label">Your Token</div>
+        <div class="th-token"><span class="th-prefix">T-</span>026</div>
+        <div class="th-clinic">Sri Sai Hospital</div>
+        <div class="th-doctor">Dr. Ramesh Kumar · General Medicine</div>
+      </div>
+
+      <!-- Now serving -->
+      <div class="now-serving">
+        <div class="ns-icon">📢</div>
+        <div class="ns-info">
+          <div class="ns-label">Now Serving</div>
+          <div class="ns-token">T-018</div>
+          <div class="ns-name">8 tokens before you</div>
+        </div>
+        <div class="ns-wait">
+          <div class="ns-wait-num">~18m</div>
+          <div class="ns-wait-label">est. wait</div>
+        </div>
+      </div>
+
+      <!-- Arrive alert -->
+      <div class="arrive-alert">
+        <div class="aa-icon">🚶</div>
+        <div class="aa-text">
+          <div class="aa-title">Start heading to clinic now!</div>
+          <div class="aa-sub">You are 8 tokens away — leave in 10 minutes</div>
+        </div>
+      </div>
+
+      <!-- Queue steps -->
+      <div class="queue-steps">
+        <div class="qs-title">Queue Progress</div>
+        <div class="qs-list">
+          <div class="qs-item qs-done">
+            <div class="qs-dot">✓</div>
+            <div class="qs-text"><div class="qs-name">Token Booked</div><div class="qs-sub">T-026 confirmed</div></div>
+            <div class="qs-time">9:10 AM</div>
+          </div>
+          <div class="qs-item qs-done">
+            <div class="qs-dot">✓</div>
+            <div class="qs-text"><div class="qs-name">Payment Done</div><div class="qs-sub">₹310 paid via UPI</div></div>
+            <div class="qs-time">9:11 AM</div>
+          </div>
+          <div class="qs-item qs-active">
+            <div class="qs-dot">→</div>
+            <div class="qs-text"><div class="qs-name">In Queue</div><div class="qs-sub">8 tokens ahead of you</div></div>
+            <div class="qs-time">Now</div>
+          </div>
+          <div class="qs-item qs-wait">
+            <div class="qs-dot">4</div>
+            <div class="qs-text"><div class="qs-name">Your Turn</div><div class="qs-sub">Doctor will call you</div></div>
+            <div class="qs-time">~18m</div>
+          </div>
+          <div class="qs-item qs-wait">
+            <div class="qs-dot">5</div>
+            <div class="qs-text"><div class="qs-name">Consultation Done</div><div class="qs-sub">Get prescription / report</div></div>
+            <div class="qs-time">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN 4: HISTORY ════════════ -->
+  <div class="screen" id="history">
+    <div class="history-header">
+      <div class="back-btn" onclick="showScreen('home')">←</div>
+      <div class="bh-title">My Visits</div>
+    </div>
+
+    <div class="history-body">
+      <div class="month-label">December 2025</div>
+
+      <div class="history-card">
+        <div class="hc-top">
+          <div class="hc-icon hc-teal">🏥</div>
+          <div class="hc-info">
+            <div class="hc-clinic">Sri Sai Hospital</div>
+            <div class="hc-doctor">Dr. Ramesh Kumar · General</div>
+            <div class="hc-date">8 Dec 2025 · Token T-026</div>
+          </div>
+          <div class="hc-right">
+            <div class="hc-fee">₹310</div>
+            <div class="hc-status status-done">Completed</div>
+          </div>
+        </div>
+        <div class="hc-actions">
+          <button class="hc-btn hc-btn-outline">📄 Prescription</button>
+          <button class="hc-btn hc-btn-gold">🔁 Book Again</button>
+        </div>
+      </div>
+
+      <div class="history-card">
+        <div class="hc-top">
+          <div class="hc-icon hc-gold">🧪</div>
+          <div class="hc-info">
+            <div class="hc-clinic">Vijaya Diagnostics</div>
+            <div class="hc-doctor">Blood CBC + LFT + KFT</div>
+            <div class="hc-date">2 Dec 2025 · Token T-008</div>
+          </div>
+          <div class="hc-right">
+            <div class="hc-fee">₹860</div>
+            <div class="hc-status status-report">Report Ready</div>
+          </div>
+        </div>
+        <div class="hc-actions">
+          <button class="hc-btn hc-btn-outline">📊 View Report</button>
+          <button class="hc-btn hc-btn-gold">⬇️ Download</button>
+        </div>
+      </div>
+
+      <div class="month-label">November 2025</div>
+
+      <div class="history-card">
+        <div class="hc-top">
+          <div class="hc-icon hc-teal">👁️</div>
+          <div class="hc-info">
+            <div class="hc-clinic">Vision Eye Clinic</div>
+            <div class="hc-doctor">Dr. Priya Sharma · Eye Check</div>
+            <div class="hc-date">18 Nov 2025 · Token T-014</div>
+          </div>
+          <div class="hc-right">
+            <div class="hc-fee">₹510</div>
+            <div class="hc-status status-done">Completed</div>
+          </div>
+        </div>
+        <div class="hc-actions">
+          <button class="hc-btn hc-btn-outline">📄 Prescription</button>
+          <button class="hc-btn hc-btn-gold">🔁 Book Again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SCREEN 5: PROFILE ════════════ -->
+  <div class="screen" id="profile">
+    <div class="profile-header">
+      <div class="profile-avatar">👤</div>
+      <div class="profile-name">Ramesh Kumar</div>
+      <div class="profile-phone">+91 98765 43210</div>
+    </div>
+
+    <div class="profile-stats">
+      <div class="ps-item"><div class="ps-val">14</div><div class="ps-label">Total Visits</div></div>
+      <div class="ps-item"><div class="ps-val">3</div><div class="ps-label">Clinics</div></div>
+      <div class="ps-item"><div class="ps-val">2</div><div class="ps-label">Reports</div></div>
+    </div>
+
+    <div class="profile-body">
+      <div class="profile-section" style="margin-top:16px;">
+        <div class="ps-header">Personal Info</div>
+        <div class="profile-item">
+          <div class="pi-icon pi-teal">👤</div>
+          <div class="pi-text"><div class="pi-title">Ramesh Kumar</div><div class="pi-sub">Full Name</div></div>
+          <div class="pi-arrow">›</div>
+        </div>
+        <div class="profile-item">
+          <div class="pi-icon pi-teal">📱</div>
+          <div class="pi-text"><div class="pi-title">+91 98765 43210</div><div class="pi-sub">Mobile Number</div></div>
+          <div class="pi-arrow">›</div>
+        </div>
+        <div class="profile-item">
+          <div class="pi-icon pi-teal">🎂</div>
+          <div class="pi-text"><div class="pi-title">35 Years · Male</div><div class="pi-sub">Age & Gender</div></div>
+          <div class="pi-arrow">›</div>
+        </div>
+        <div class="profile-item">
+          <div class="pi-icon pi-teal">📍</div>
+          <div class="pi-text"><div class="pi-title">Warangal, Telangana</div><div class="pi-sub">Location</div></div>
+          <div class="pi-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <div class="ps-header">Preferences</div>
+        <div class="profile-item">
+          <div class="pi-icon pi-gold">🔔</div>
+          <div class="pi-text"><div class="pi-title">Notifications</div><div class="pi-sub">SMS & WhatsApp alerts</div></div>
+          <div class="pi-arrow">›</div>
+        </div>
+        <div class="profile-item">
+          <div class="pi-icon pi-gold">🌐</div>
+          <div class="pi-text"><div class="pi-title">Language</div><div class="pi-sub">Telugu / English</div></div>
+          <div class="pi-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <div class="ps-header">Support</div>
+        <div class="profile-item">
+          <div class="pi-icon pi-teal">❓</div>
+          <div class="pi-text"><div class="pi-title">Help & FAQ</div><div class="pi-sub">How HALSAA works</div></div>
+          <div class="pi-arrow">›</div>
+        </div>
+        <div class="profile-item">
+          <div class="pi-icon pi-red">🚪</div>
+          <div class="pi-text"><div class="pi-title">Logout</div><div class="pi-sub">Sign out of HALSAA</div></div>
+          <div class="pi-arrow">›</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ BOTTOM NAV ════════════ -->
+  <div class="bottom-nav">
+    <div class="nav-item active" id="nav-home" onclick="showScreen('home');setNav('nav-home')">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label" style="color:var(--teal)">Home</div>
+    </div>
+    <div class="nav-item" id="nav-book" onclick="showScreen('book');setNav('nav-book')">
+      <div class="nav-icon">➕</div>
+      <div class="nav-label">Book</div>
+    </div>
+    <div class="nav-item" id="nav-tracker" onclick="showScreen('tracker');setNav('nav-tracker')">
+      <div class="nav-icon">📍</div>
+      <div class="nav-label">Track</div>
+    </div>
+    <div class="nav-item" id="nav-history" onclick="showScreen('history');setNav('nav-history')">
+      <div class="nav-icon">📋</div>
+      <div class="nav-label">History</div>
+    </div>
+    <div class="nav-item" id="nav-profile" onclick="showScreen('profile');setNav('nav-profile')">
+      <div class="nav-icon">👤</div>
+      <div class="nav-label">Profile</div>
+    </div>
+  </div>
+
+  <!-- Payment Sheet -->
+  <div class="overlay" id="overlay" onclick="hidePayment()"></div>
+  <div class="payment-sheet" id="paymentSheet">
+    <div class="ps-handle"></div>
+    <div class="ps-title">Confirm Booking</div>
+    <div class="ps-sub" id="ps-clinic-info">Sri Sai Hospital · Dr. Ramesh Kumar</div>
+    <div class="ps-amount-card">
+      <div class="ps-amount-label">Total to Pay Now</div>
+      <div class="ps-amount-val">₹10</div>
+    </div>
+    <div class="ps-breakdown">
+      <div class="ps-row"><span class="ps-row-label">Consultation Fee</span><span class="ps-row-val">Pay at clinic</span></div>
+      <div class="ps-row"><span class="ps-row-label">HALSAA Platform Fee</span><span class="ps-row-val">₹10</span></div>
+      <div class="ps-row"><span class="ps-row-label">Total Now</span><span class="ps-row-val" style="color:var(--teal)">₹10</span></div>
+    </div>
+    <button class="ps-pay-btn" onclick="confirmBooking()">Pay ₹10 & Get Token 🎉</button>
+    <div class="ps-upi-row">
+      <div class="ps-upi">📱 UPI</div>
+      <div class="ps-upi">💳 Card</div>
+      <div class="ps-upi">🏦 Net Banking</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const navMap = {home:'nav-home',book:'nav-book',tracker:'nav-tracker',history:'nav-history',profile:'nav-profile'};
+  if(navMap[id]) setNav(navMap[id]);
+  window.scrollTo(0,0);
+}
+
+function setNav(activeId) {
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.remove('active');
+    n.querySelector('.nav-label').style.color = 'var(--muted)';
+  });
+  const el = document.getElementById(activeId);
+  if(el) {
+    el.classList.add('active');
+    el.querySelector('.nav-label').style.color = 'var(--teal)';
+  }
+}
+
+function showPayment(clinic, doctor, fee) {
+  document.getElementById('ps-clinic-info').textContent = clinic + ' · ' + doctor;
+  document.getElementById('paymentSheet').classList.add('show');
+  document.getElementById('overlay').classList.add('show');
+}
+
+function hidePayment() {
+  document.getElementById('paymentSheet').classList.remove('show');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function confirmBooking() {
+  hidePayment();
+  showScreen('tracker');
+  setNav('nav-tracker');
+}
+</script>
+</body>
+</html>
